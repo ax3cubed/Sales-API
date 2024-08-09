@@ -1,0 +1,14 @@
+node_modules
+
+src/**/*.js
+src/**/*.js.map
+test/**/*.js
+test/**/*.js.map
+
+dist
+.vscode
+#env
+.env.local
+.env.development
+
+.DS_Store

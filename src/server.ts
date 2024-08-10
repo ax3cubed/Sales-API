@@ -1,13 +1,30 @@
-import express from 'express';
+import cors from "cors";
+import express, { type Express } from "express";
+import helmet from "helmet";
+import { pino } from "pino";
 
-const app = express();
+import { openAPIRouter } from "@/api-docs/openAPIRouter";
+import { healthCheckRouter } from "@/api/routes/health-check.router";
 
-const port = 3000;
 
-app.get('/', (req, res) => {
-    res.send('Hello, Typescript')
-})
+const logger = pino({ name: "server start" });
+const app: Express = express();
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`)
-})
+// Set the application to trust the reverse proxy
+app.set("trust proxy", true);
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
+
+
+// Routes
+app.use("/health-check", healthCheckRouter);
+
+
+// Swagger UI
+app.use(openAPIRouter);
+
+
+export { app, logger };

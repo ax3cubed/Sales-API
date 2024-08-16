@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { PORT,NODE_ENV,HOST, } from "@/common/config/env/index";
 import { app, logger } from "@/server";
 

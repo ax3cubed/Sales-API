@@ -1,5 +1,6 @@
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 export default defineConfig({
   test: {
@@ -9,5 +10,9 @@ export default defineConfig({
     globals: true,
     restoreMocks: true,
   },
-  plugins: [tsconfigPaths()],
+  plugins: [basicSsl({
+    certDir:'./.cert',
+    domains:['localhost'],
+    name:'localhost'
+  }), tsconfigPaths()],
 });

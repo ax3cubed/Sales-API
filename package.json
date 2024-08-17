@@ -12,7 +12,8 @@
     "lint:fix": "biome check src/ --fix",
     "format": "biome format src/",
     "test": "vitest run",
-    "prepare": "husky"
+    "prepare": "husky",
+     "cert": "set NODE_EXTRA_CA_CERTS='$(mkcert -CAROOT)/rootCA.pem' &&  rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem localhost"
   },
   "repository": {
     "type": "git",
@@ -48,6 +49,7 @@
     "@types/node": "^22.4.0",
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "pino-pretty": "^11.0.0",

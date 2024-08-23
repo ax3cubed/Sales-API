@@ -13,7 +13,7 @@
     "format": "biome format src/",
     "test": "vitest run",
     "prepare": "husky",
-     "cert": "set NODE_EXTRA_CA_CERTS='$(mkcert -CAROOT)/rootCA.pem' &&  rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem localhost"
+    "cert": "set NODE_EXTRA_CA_CERTS='$(mkcert -CAROOT)/rootCA.pem' &&  rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem localhost"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/ax3cubed/Sales-API#readme",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.0.0",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

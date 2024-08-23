@@ -1,10 +1,20 @@
+import { IsBoolean , IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { Type } from 'class-transformer'
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
 
 export class ServiceResponse<T = null> {
+  @IsBoolean()
   readonly success: boolean;
+
+  @IsString()
   readonly message: string;
+
+  @IsOptional()
+  @ValidateNested({ each: true})
+  @Type(() => Object)
   readonly responseObject: T;
+
+  @IsNumber()
   readonly statusCode: number;
 
   private constructor(success: boolean, message: string, responseObject: T, statusCode: number) {
@@ -23,10 +33,4 @@ export class ServiceResponse<T = null> {
   }
 }
 
-export const ServiceResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
-  z.object({
-    success: z.boolean(),
-    message: z.string(),
-    responseObject: dataSchema.optional(),
-    statusCode: z.number(),
-  });
+ 

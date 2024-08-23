@@ -28,4 +28,10 @@ export class User extends BaseEntity {
   @Column()
   @IsOptional()
   updatedAt?: Date;
+
+  /**
+   *
+   */
+
+ 
 }

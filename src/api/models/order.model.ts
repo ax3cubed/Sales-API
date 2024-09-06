@@ -1,10 +1,11 @@
-import { Entity, ObjectIdColumn, Column, BaseEntity, ObjectId, OneToMany, OneToOne, JoinColumn } from "typeorm";
+import { Entity, ObjectIdColumn, Column, ObjectId, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { IsNotEmpty, IsString, IsInt, IsOptional, IsPositive } from "class-validator";
 import { Product } from "./product.model";
 import { User } from "./user.model";
+import { DecoratedEntity } from "./decorated.entity";
 
 @Entity()
-export class Order extends BaseEntity {
+export class Order extends DecoratedEntity {
   @ObjectIdColumn()
   id?: ObjectId;
 

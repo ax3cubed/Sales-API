@@ -1,8 +1,9 @@
-import { Entity, ObjectIdColumn, Column, BaseEntity, ObjectId } from "typeorm";
+import { Entity, ObjectIdColumn, Column, ObjectId } from "typeorm";
 import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Min, Max } from "class-validator";
+import { DecoratedEntity } from "./decorated.entity";
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends DecoratedEntity {
   @ObjectIdColumn()
   id?: ObjectId;
 

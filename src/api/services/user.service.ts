@@ -1,15 +1,19 @@
 import { ObjectId, UpdateResult } from "typeorm";
 import { User } from "../models/user.model";
 import { UserRepository } from "../repositories/user.repository";
+import { GenericRepository } from "../repositories/GenericRepository";
+import { MongoDbDataSource } from "@/common/datasources";
 
 export class UserService {
-  private userRepository: UserRepository;
+  private userRepository: GenericRepository<User>;
 
   /**
    *
    */
   constructor() {
-    this.userRepository = new UserRepository();
+    this.userRepository = new GenericRepository<User>(
+      MongoDbDataSource.getRepository(User)
+    );
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -24,7 +28,11 @@ export class UserService {
     try {
       const user = new User();
       user.id = id;
-      return await this.userRepository.findById(user);
+      return await this.userRepository.findOne({
+        where: {
+          id: id,
+        },
+      });
     } catch (error: any) {
       throw new Error(`Unable to find user with id ${id}: ${error.message}`);
     }
@@ -37,18 +45,17 @@ export class UserService {
     }
   }
 
-  async updateUser(id: number, user: User): Promise<UpdateResult> {
+  async updateUser(user: User): Promise<User> {
     try {
-      return await this.userRepository.update(user, id);
-    } catch (error:any) {
-      throw new Error(`Unable to update user with id ${id}: ${error.message}`);
+      return await this.userRepository.update(user);
+    } catch (error: any) {
+      throw new Error(`Unable to update user with id ${user.id}: ${error.message}`);
     }
   }
   async deleteUser(id: number): Promise<void> {
     try {
-  
       await this.userRepository.delete(id);
-    } catch (error:any) {
+    } catch (error: any) {
       throw new Error(`Unable to delete user with id ${id}: ${error.message}`);
     }
   }

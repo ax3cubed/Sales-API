@@ -1,6 +1,5 @@
 import { UpdateResult, DeleteResult, Repository, FindOneOptions, EntityManager } from "typeorm";
 import { IRepository } from "./IRepository";
-import { MongoDbDataSource } from "@/common/datasources";
 import { DecoratedEntity } from "../models/decorated.entity";
 
 
@@ -13,7 +12,6 @@ export class GenericRepository<T extends DecoratedEntity> implements IRepository
     // constructor(entity: any) {
     //    this.repository = MongoDbDataSource.getRepository(entity);
     // }
-
     /**
      *
      */

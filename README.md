@@ -9,7 +9,7 @@ Sales API is a RESTful API designed to manage sales operations, including order 
 5. [Implementation Process](notion://www.notion.so/Sales-API-53e13422c50f4c30a221f033d206003b?showMoveTo=true&saveParent=true#implementation-process)
 6. [Contributing](notion://www.notion.so/Sales-API-53e13422c50f4c30a221f033d206003b?showMoveTo=true&saveParent=true#contributing)
 7. [License](notion://www.notion.so/Sales-API-53e13422c50f4c30a221f033d206003b?showMoveTo=true&saveParent=true#license)
-
+8. [Assignments]
 ## Project Structure
 
 The project follows a well-organized directory structure, making it easy to navigate and maintain:
@@ -555,3 +555,49 @@ export const envs = {
     - Ensure `.env` files are not included in version control. Use `.gitignore` to exclude them and manage sensitive information securely.
 5. **Error Handling**:
     - Handle cases where required environment variables are missing or invalid to prevent runtime errors.
+
+
+    # 8. Assignments: Order and Product Management
+
+## Objectives
+
+1. **Order Model**: Track the payment status and various states of an order.
+2. **Order Service**: Implement functionalities to manage orders.
+3. **Product Model**: Define a model for products and implement service methods.
+
+---
+
+## Order Model
+
+### Requirements
+
+- **Payment Status**: Determine if an order has been paid for.
+- **Order Status**: Track the current status of an order. The statuses include:
+  - Created
+  - Pending Delivery
+  - Delivered
+  - Returned
+
+## Order Service
+Methods
+Get All Orders
+
+Retrieves a list of all orders.
+Create an Order
+
+When creating an order, also create a sales entry.
+Note: There should only be one sales entry in the database. If a sales entry exists, update the existing entry's quantity and total price by adding the current order's price and quantity.
+Update an Order
+
+Orders cannot be updated after 15 minutes of creation.
+Delete an Order
+
+Orders should never be deleted. Consider using soft deletes.
+Find by Order ID
+
+Retrieve an order by its ID.
+Product Model
+Requirements
+Define a model to represent products.
+Implement service methods to manage products.
+Model

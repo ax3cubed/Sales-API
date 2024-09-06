@@ -7,16 +7,6 @@ export class Sales extends BaseEntity {
   id?: ObjectId;
 
   @Column()
-  @IsNotEmpty({ message: "Sale reference is required" })
-  @IsString({ message: "Sale reference must be a string" })
-  saleReference?: string;
-
-  @Column()
-  @IsNotEmpty({ message: "Product ID is required" })
-  @IsString({ message: "Product ID must be a string" })
-  productId?: string;
-
-  @Column()
   @IsNotEmpty({ message: "Quantity sold is required" })
   @IsInt({ message: "Quantity sold must be an integer" })
   @IsPositive({ message: "Quantity sold must be a positive number" })

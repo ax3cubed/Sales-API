@@ -1,5 +1,7 @@
-import { Entity, ObjectIdColumn, Column, BaseEntity, ObjectId } from "typeorm";
+import { Entity, ObjectIdColumn, Column, BaseEntity, ObjectId, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { IsNotEmpty, IsString, IsInt, IsOptional, IsPositive } from "class-validator";
+import { Product } from "./product.model";
+import { User } from "./user.model";
 
 @Entity()
 export class Order extends BaseEntity {
@@ -12,15 +14,19 @@ export class Order extends BaseEntity {
   orderNumber?: string;
 
   @Column()
-  @IsNotEmpty({ message: "Product name is required" })
-  @IsString({ message: "Product name must be a string" })
-  productName?: string;
+  @IsNotEmpty({ message: "Product id is required" })
+  @IsString({ message: "Product id must be a string" })
+  @OneToMany(type => Product, product => product.order)
+  products?: Product[];
 
   @Column()
   @IsNotEmpty({ message: "Quantity is required" })
   @IsInt({ message: "Quantity must be an integer" })
   @IsPositive({ message: "Quantity must be a positive number" })
   quantity?: number;
+
+  @OneToOne(type => User) @JoinColumn()
+  user?: User;
 
   @Column()
   @IsNotEmpty({ message: "Price is required" })

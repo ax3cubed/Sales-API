@@ -1,5 +1,6 @@
-import { Entity, ObjectIdColumn, Column, BaseEntity, ObjectId } from "typeorm";
+import { Entity, ObjectIdColumn, Column, BaseEntity, ObjectId, ManyToOne } from "typeorm";
 import { IsNotEmpty, IsString, IsInt, IsOptional, IsPositive } from "class-validator";
+import { Order } from "./order.model";
 
 @Entity()
 export class Product extends BaseEntity {
@@ -26,6 +27,9 @@ export class Product extends BaseEntity {
   @IsInt({ message: "Stock quantity must be an integer" })
   @IsPositive({ message: "Stock quantity must be a positive number" })
   stockQuantity?: number;
+
+  @ManyToOne(type => Order, order => order.products)
+  order? : Order;
 
   @Column()
   @IsOptional()

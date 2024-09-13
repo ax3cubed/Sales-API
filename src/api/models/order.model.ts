@@ -35,10 +35,19 @@ export class Order extends DecoratedEntity {
   price?: number;
 
   @Column()
+  @IsNotEmpty({ message: "Total price is required" })
+  @IsPositive({ message: "Total price must be a positive number" })
+  totalPrice?: number;
+
+  @Column()
   @IsOptional()
   createdAt?: Date;
 
   @Column()
   @IsOptional()
   updatedAt?: Date;
+
+  @Column({ default: false })
+  @IsOptional()
+  softDeleted?: boolean;
 }

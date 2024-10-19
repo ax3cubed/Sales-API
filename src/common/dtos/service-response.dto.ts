@@ -2,6 +2,17 @@ import { IsBoolean , IsNumber, IsOptional, IsString, ValidateNested } from "clas
 import { Type } from 'class-transformer'
 import { StatusCodes } from "http-status-codes";
 
+
+import { z } from "zod";
+
+ 
+export const ServiceResponseSchema = (schema: z.ZodType) =>z.object({
+    success: z.boolean(),
+    message: z.string(),
+    responseObject: schema.optional(), 
+    statusCode: z.number(),
+});
+
 export class ServiceResponse<T = null> {
   @IsBoolean()
   readonly success: boolean;

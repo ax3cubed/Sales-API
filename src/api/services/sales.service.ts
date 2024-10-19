@@ -1,18 +1,15 @@
-import { ObjectId, UpdateResult } from "typeorm";
+import { ObjectId, Repository, UpdateResult } from "typeorm";
 import { Sales } from "../models/sales.model";
 import { GenericRepository } from "../repositories/GenericRepository";
 import { MongoDbDataSource } from "@/common/datasources";
 
-export class SalesService {
-  private salesRepository: GenericRepository<Sales>;
-
+export class SalesService extends GenericRepository<Sales> {
+ 
   /**
    *
    */
-  constructor() {
-    this.salesRepository = new GenericRepository<Sales>(
-      MongoDbDataSource.getRepository(Sales)
-    );
+  constructor(protected readonly salesRepository: Repository<Sales>) {
+    super(salesRepository);
   }
 
   async getAllSaless(): Promise<Sales[]> {
@@ -44,9 +41,14 @@ export class SalesService {
     }
   }
 
-  async updateSales(sales: Sales): Promise<Sales> {
+  async updateSales(sales: Sales): Promise<Sales | null> {
+    if (!sales.id) {
+      throw new Error('User ID is required to update the user.');
+    }
     try {
-      return await this.salesRepository.update(sales);
+       await this.salesRepository.update(sales.id, sales);
+
+       return await this.getSalesById(sales.id);
     } catch (error: any) {
       throw new Error(`Unable to update sales with id ${sales.id}: ${error.message}`);
     }

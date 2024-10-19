@@ -5,6 +5,7 @@ import { pino } from "pino";
 
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import { healthCheckRouter } from "@/api/routes/health-check.router";
+import userRouter from "./api/routes/user.router";
 
 
 const logger = pino({ name: "server start" });
@@ -21,6 +22,7 @@ app.use(helmet());
 
 // Routes
 app.use("/health-check", healthCheckRouter);
+app.use("/api/users", userRouter);
 
 
 // Swagger UI

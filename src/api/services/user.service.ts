@@ -1,42 +1,32 @@
-import { ObjectId, UpdateResult } from "typeorm";
+import { ObjectId, Repository } from "typeorm";
 import { User } from "../models/user.model";
-import { UserRepository } from "../repositories/user.repository";
 import { GenericRepository } from "../repositories/GenericRepository";
-import { MongoDbDataSource } from "@/common/datasources";
+import { UNABLE_TO_FIND_USER } from "@/common/utils/messages";
 
-export class UserService {
-  private userRepository: GenericRepository<User>;
+export class UserService extends GenericRepository<User> {
 
-  /**
-   *
-   */
-  constructor() {
-    this.userRepository = new GenericRepository<User>(
-      MongoDbDataSource.getRepository(User)
-    );
+  constructor(protected readonly userRepository: Repository<User>) {
+    super(userRepository);
   }
 
   async getAllUsers(): Promise<User[]> {
     try {
       return await this.userRepository.find();
     } catch (error: any) {
-      throw new Error(`unable to ertriee users: ${error.message}`);
+      throw new Error(`Unable to retrieve users: ${error.message}`);
     }
   }
 
   async getUserById(id: ObjectId): Promise<User | null> {
     try {
-      const user = new User();
-      user.id = id;
       return await this.userRepository.findOne({
-        where: {
-          id: id,
-        },
+        where: { id },
       });
     } catch (error: any) {
-      throw new Error(`Unable to find user with id ${id}: ${error.message}`);
+      throw new Error(UNABLE_TO_FIND_USER(id, error));
     }
   }
+
   async createUser(user: User): Promise<User> {
     try {
       return await this.userRepository.save(user);
@@ -45,18 +35,31 @@ export class UserService {
     }
   }
 
-  async updateUser(user: User): Promise<User> {
+  async updateUser(user: User): Promise<User | null> {
+    if (!user.id) {
+      throw new Error('User ID is required to update the user.');
+    }
+
     try {
-      return await this.userRepository.update(user);
+      await this.userRepository.update(user.id, user); // Now it's safe to pass `user.id`
+      return await this.getUserById(user.id);
     } catch (error: any) {
-      throw new Error(`Unable to update user with id ${user.id}: ${error.message}`);
+      throw new Error(`Unable to update user with ID ${user.id}: ${error.message}`);
     }
   }
-  async deleteUser(id: number): Promise<void> {
+
+  async deleteUser(id: ObjectId): Promise<void> {
+    if (!id) {
+      throw new Error('User ID is required to delete the user.');
+    }
+
     try {
-      await this.userRepository.delete(id);
+      const deleteResult = await this.userRepository.delete(id);
+      if (deleteResult.affected === 0) {
+        throw new Error(`No user found with ID ${id} to delete.`);
+      }
     } catch (error: any) {
-      throw new Error(`Unable to delete user with id ${id}: ${error.message}`);
+      throw new Error(`Unable to delete user with ID ${id}: ${error.message}`);
     }
   }
 }

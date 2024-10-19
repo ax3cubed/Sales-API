@@ -4,10 +4,26 @@ import { StatusCodes } from "http-status-codes";
 import { ServiceResponse } from "@/common/dtos/service-response.dto";
 import { plainToInstance } from "class-transformer";
 import { validate, ValidationError } from "class-validator";
+import { FETCH_ERROR } from "./messages";
 
-export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, response: Response) => {
+ export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, response: Response) => {
   return response.status(serviceResponse.statusCode).send(serviceResponse);
 };
+
+export const handleSuccess = (message:string,responseObject:any, response:Response) =>{
+  const serviceResponse = ServiceResponse.success(
+    message,
+    responseObject,
+    StatusCodes.OK
+  );
+  return handleServiceResponse(serviceResponse, response);
+}
+
+export const handleError = (response:Response, error:any) => {
+  const errorMessage = error?.message || FETCH_ERROR;
+  const serviceResponse = ServiceResponse.failure(errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
+  return handleServiceResponse(serviceResponse, response);
+}
 
 export const validateRequest = (schema: any) => async (req: Request, res: Response, next: NextFunction) => {
    

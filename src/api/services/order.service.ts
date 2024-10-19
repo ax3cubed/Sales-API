@@ -1,74 +1,50 @@
-import { MongoDbDataSource } from "@/common/datasources";
 import { Order } from "../models/order.model";
-import { SalesService } from "./sales.service";
-import { UpdateResult } from "typeorm";
-import { Sales } from "../models/sales.model"; 
-import { MoreThanOrEqual } from "typeorm";
-export class OrderService {
-  private salesService: SalesService;
+import { Repository, UpdateResult } from "typeorm";
+import { GenericRepository } from "../repositories/GenericRepository";
+import { ObjectId } from "mongodb";
+import { OrderValidation } from "./service.validators/order.validators";
+export class OrderService extends GenericRepository<Order> {
+   
 
-  constructor() {
-    this.salesService = new SalesService();
+  constructor( protected readonly orderRepository: Repository<Order>) {
+   super(orderRepository);
   }
 
   async createOrder(order: Order): Promise<Order> {
     try {
-        // Set the createdAt date to the current date/time
-        order.createdAt = new Date();
-        // Save the order to the database
-        const createdOrder = await MongoDbDataSource.manager.save(Order, order);
-        
-        // After successfully saving the order, return the created order
-        return createdOrder;
+        return this.orderRepository.save(order);
       } catch (error: any) {
-        // Throw an error if something goes wrong
         throw new Error(`Unable to create order: ${error.message}`);
       }
   }
 
-  /**
-   * Update an existing order if created less than 15 minutes ago
-   */
+ 
   async updateOrder(order: Order): Promise<Order | null> {
-    const existingOrder = await this.findOrderById(order.id);
-  
-    if (!existingOrder) {
-      throw new Error(`Order with ID ${order.id} not found`);
+    if (!OrderValidation.validateOrder(order)) {
+      throw new Error(`Unable to create order: Valiation failed`);
     }
-  
-    if (!existingOrder.createdAt) {
-        throw new Error('Order creation time is missing.');
-      }
-      
-    // Calculate the time difference between now and the order creation time
-    const now = new Date().getTime();
-    const createdAt = new Date(existingOrder.createdAt).getTime();
-    const timeDifference = (now - createdAt) / (1000 * 60); // Time difference in minutes
-  
-    if (timeDifference > 15) {
-      throw new Error('Order cannot be updated after 15 minutes of creation.');
-    }
-  
-    return await MongoDbDataSource.manager.save(Order, order);
+    if(!order?.id){
+      throw new Error('Order ID is required to update the user.');
+  }
+     await this.orderRepository.update(order.id, order);
+     return await this.findOrderById(order.id);
   }
 
-  /**
-   * Soft delete an order by marking it as deleted
-   */
-  async softDeleteOrder(id: number): Promise<void> {
-    const order = await this.findOrderById(id);
-    if (!order) {
-      throw new Error(`Order with ID ${id} not found`);
-    }
+  
+  async softDeleteOrder(id: ObjectId): Promise<UpdateResult> {
+    const orderToDelete = new Order();
+    orderToDelete.id = id;
+    orderToDelete.softDeleted =true;
+    return this.orderRepository.update(orderToDelete.id, orderToDelete);
 
-    order.softDeleted = true;
-    await MongoDbDataSource.manager.save(Order, order);
   }
 
-  /**
-   * Find an order by ID
-   */
-  async findOrderById(id: number): Promise<Order | null> {
-    return await MongoDbDataSource.manager.findOneBy(Order, { id, softDeleted: false });
+ 
+  async findOrderById(id: ObjectId): Promise<Order | null> {
+   return this.orderRepository.findOne({
+    where:{
+      id:id
+    }
+   })
   }
 }

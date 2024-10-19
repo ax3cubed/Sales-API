@@ -1,5 +1,7 @@
 Sales API is a RESTful API designed to manage sales operations, including order processing, product management, and user authentication. The project is built using Node.js and TypeScript and follows modern best practices, including strict type-checking, comprehensive logging, and security features.
-
+## Assignment
+1. Implement contrlers add routes for all services using user.controler.ts as a guide
+2. Update all existing entity models to take a Column type property explicitly using the order.model.ts as a guide
 ## Table of Contents
 
 1. [Project Structure](notion://www.notion.so/Sales-API-53e13422c50f4c30a221f033d206003b?showMoveTo=true&saveParent=true#project-structure)

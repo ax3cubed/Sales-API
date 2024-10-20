@@ -1,7 +1,7 @@
-import { DeleteResult, FindOneOptions, Repository, MoreThan } from "typeorm";
-import { Product } from "@/api/models/product.model";
+import type { Product } from "@/api/models/product.model";
 import { GenericRepository } from "@/api/repositories/GenericRepository";
-import { ObjectId } from "mongodb";
+import type { ObjectId } from "mongodb";
+import { DeleteResult, FindOneOptions, MoreThan, type Repository } from "typeorm";
 
 export class ProductService extends GenericRepository<Product> {
   constructor(protected readonly productRepository: Repository<Product>) {
@@ -36,11 +36,11 @@ export class ProductService extends GenericRepository<Product> {
   async findProductsByOrder(orderId: ObjectId): Promise<Product[]> {
     return await this.repository.find({ where: { order: { id: orderId } } });
   }
-  
+
   async findAvailableProducts(): Promise<Product[]> {
     return await this.repository.find({
       where: {
-        stockQuantity: MoreThan(0)
+        stockQuantity: MoreThan(0),
       },
     });
   }

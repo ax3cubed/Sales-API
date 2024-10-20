@@ -1,21 +1,27 @@
-import { Request, Response } from "express";
-import { UserService } from "../services/user.service";
-import { handleError, handleSuccess } from "@/common/utils/http-handlers";
-import { ServiceResponse } from "@/common/dtos/service-response.dto";
-import { CREATE_SUCCESS, DELETE_SUCCESS, FETCH_SUCCESS, NOT_FOUND, UPDATE_SUCCESS } from "@/common/utils/messages";
+
+
+import type { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { ObjectId } from "typeorm";
 import { User } from "../models/user.model";
+import type { UserService } from "../services/user.service";
+import { ObjectId } from "mongodb";
+import { Messages } from "@/common/utils/messages";
+import { ResponseHandler } from "@/common/utils/response-handler";
 
 export class UserController {
-  constructor(private userService: UserService) {}
+   messages : Messages<User>;
+   responseHandler: ResponseHandler<UserController>;
+  constructor(private userService: UserService) {
+    this.messages= new Messages(new User);
+    this.responseHandler = new ResponseHandler(this);
+  }
 
   async getAllUsers(req: Request, res: Response): Promise<Response> {
     try {
-      const users = await this.userService.getAllUsers();    
-       return handleSuccess(FETCH_SUCCESS,users,res)
+      const users = await this.userService.getAllUsers();
+      return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, users, res);
     } catch (error: any) {
-     return handleError(res, error)
+      return this.responseHandler.handleError(res, error);
     }
   }
 
@@ -25,45 +31,46 @@ export class UserController {
       const userId = new ObjectId(id);
       const user = await this.userService.getUserById(userId);
       if (!user) {
-        return handleError(res, { message: NOT_FOUND(User), statusCode: StatusCodes.NOT_FOUND });
+      return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND } );
       }
-      return handleSuccess(FETCH_SUCCESS, user, res);
+      return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, user, res);
     } catch (error: any) {
-      return handleError(res, error);
+      return this.responseHandler.handleError(res, error);
     }
   }
 
-  async createUser(req: Request, res: Response): Promise<Response> {
+  async createUser(req: Request, res: Response, next: NextFunction): Promise<Response> {
     const userData = req.body;
     try {
       const newUser = await this.userService.createUser(userData);
-      return handleSuccess(CREATE_SUCCESS(User), newUser, res);
+      return this.responseHandler.handleSuccess(this.messages.CREATE_SUCCESS(), newUser, res);
     } catch (error: any) {
-      return handleError(res, error);
+      return this.responseHandler.handleError(res, error);
     }
   }
-  async updateUser(req: Request, res: Response): Promise<Response> {
-    const userData = req.body;  
+  async updateUser(req: Request, res: Response, next:NextFunction): Promise<Response> {
+    const userData = req.body;
+    const {id } = req.params;
     try {
-      const userId = new ObjectId(userData.id);  
-      const updatedUser = await this.userService.updateUser({ ...userData, id: userId });  
+      const userId = new ObjectId(id);
+      const updatedUser = await this.userService.updateUser({ ...userData, id: userId });
       if (!updatedUser) {
-        return handleError(res, { message:  NOT_FOUND(User), statusCode: StatusCodes.NOT_FOUND });
+        return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
       }
-      return handleSuccess(UPDATE_SUCCESS(User), updatedUser, res);
+      return this.responseHandler.handleSuccess(this.messages.UPDATE_SUCCESS(), updatedUser, res);
     } catch (error: any) {
-      return handleError(res, error);
+      return this.responseHandler.handleError(res, error);
     }
   }
 
   async deleteUser(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     try {
-      const userId = new ObjectId(id);  
+      const userId = new ObjectId(id);
       await this.userService.deleteUser(userId);
-      return handleSuccess(DELETE_SUCCESS(User), null, res);
+      return this.responseHandler.handleSuccess(this.messages.DELETE_SUCCESS(), null, res);
     } catch (error: any) {
-      return handleError(res, error);
+      return this.responseHandler.handleError(res, error);
     }
   }
 }

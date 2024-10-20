@@ -1,48 +1,50 @@
-import { Entity, ObjectIdColumn, Column, ObjectId, OneToMany, OneToOne, JoinColumn } from "typeorm";
-import { IsNotEmpty, IsString, IsInt, IsOptional, IsPositive } from "class-validator";
+import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from "class-validator";
+import { Column, CreateDateColumn, Entity, JoinColumn, type ObjectId, ObjectIdColumn, OneToMany, OneToOne, UpdateDateColumn } from "typeorm";
+import { DecoratedEntity } from "./decorated.entity";
 import { Product } from "./product.model";
 import { User } from "./user.model";
-import { DecoratedEntity } from "./decorated.entity";
 
 @Entity()
 export class Order extends DecoratedEntity {
   @ObjectIdColumn()
   id?: ObjectId;
 
-  @Column({ type:"string"})
+  @Column({ type: "string" })
   @IsNotEmpty({ message: "Order number is required" })
   @IsString({ message: "Order number must be a string" })
   orderNumber?: string;
 
-  @Column({ type:"array"})
+  @Column({ type: "array" })
   @IsNotEmpty({ message: "Product id is required" })
   @IsString({ message: "Product id must be a string" })
-  @OneToMany(type => Product, product => product.order)
+  @OneToMany(
+    (type) => Product,
+    (product) => product.order,
+  )
   products?: Product[];
 
-  @Column({ type:"number"})
+  @Column({ type: "number" })
   @IsNotEmpty({ message: "Quantity is required" })
   @IsInt({ message: "Quantity must be an integer" })
   @IsPositive({ message: "Quantity must be a positive number" })
   quantity?: number;
 
-  @OneToOne(type => User) @JoinColumn()
+  @OneToOne((type) => User)
+  @JoinColumn()
   user?: User;
 
-  @Column({type:"number"})
+  @Column({ type: "number" })
   @IsNotEmpty({ message: "Total price is required" })
   @IsPositive({ message: "Total price must be a positive number" })
   totalPrice?: number;
 
-  @Column({type:'date'})
-  @IsOptional()
-  createdAt?: Date;
+  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+   createdAt?: Date;
+  
+  @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
+   updateAt?: Date;
 
-  @Column({type:'date'})
-  @IsOptional()
-  updatedAt?: Date;
-
-  @Column({ default: false , type:"boolean"})
+  @Column({ default: false, type: "boolean" })
   @IsOptional()
   softDeleted?: boolean;
 }

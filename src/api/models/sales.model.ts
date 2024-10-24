@@ -7,22 +7,22 @@ export class Sales extends DecoratedEntity {
   @ObjectIdColumn()
   id?: ObjectId;
 
-  @Column()
+  @Column({ type:"string"})
   @IsNotEmpty({ message: "Quantity sold is required" })
   @IsInt({ message: "Quantity sold must be an integer" })
   @IsPositive({ message: "Quantity sold must be a positive number" })
   quantitySold?: number;
 
-  @Column()
+  @Column({ type:"number"})
   @IsNotEmpty({ message: "Total price is required" })
   @IsPositive({ message: "Total price must be a positive number" })
   totalPrice?: number;
 
-  @Column()
+  @Column({type:'date'})
   @IsOptional()
   createdAt?: Date;
 
-  @Column()
+  @Column({type:'date'})
   @IsOptional()
   updatedAt?: Date;
 }

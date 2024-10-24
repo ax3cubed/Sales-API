@@ -8,22 +8,22 @@ export class Product extends DecoratedEntity {
   @ObjectIdColumn()
   id?: ObjectId;
 
-  @Column()
+  @Column({ type:"string"})
   @IsNotEmpty({ message: "Product name is required" })
   @IsString({ message: "Product name must be a string" })
   name?: string;
 
-  @Column()
+  @Column({ type:"string"})
   @IsNotEmpty({ message: "Product description is required" })
   @IsString({ message: "Product description must be a string" })
   description?: string;
 
-  @Column()
+  @Column({type:"number"})
   @IsNotEmpty({ message: "Price is required" })
   @IsPositive({ message: "Price must be a positive number" })
   price?: number;
 
-  @Column()
+  @Column({type:"number"})
   @IsNotEmpty({ message: "Stock quantity is required" })
   @IsInt({ message: "Stock quantity must be an integer" })
   @IsPositive({ message: "Stock quantity must be a positive number" })
@@ -32,11 +32,11 @@ export class Product extends DecoratedEntity {
   @ManyToOne(type => Order, order => order.products)
   order? : Order;
 
-  @Column()
+  @Column({type:'date'})
   @IsOptional()
   createdAt?: Date;
 
-  @Column()
+  @Column({type:'date'})
   @IsOptional()
   updatedAt?: Date;
 }

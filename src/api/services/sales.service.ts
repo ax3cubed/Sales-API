@@ -12,7 +12,7 @@ export class SalesService extends GenericRepository<Sales> {
     super(salesRepository);
   }
 
-  async getAllSaless(): Promise<Sales[]> {
+  async getAllSales(): Promise<Sales[]> {
     try {
       return await this.salesRepository.find();
     } catch (error: any) {

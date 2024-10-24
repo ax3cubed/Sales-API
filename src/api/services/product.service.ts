@@ -1,7 +1,7 @@
-import { DeleteResult, FindOneOptions, Repository, MoreThan } from "typeorm";
+import { DeleteResult, FindOneOptions, Repository, ObjectId, MoreThan } from "typeorm";
 import { Product } from "@/api/models/product.model";
 import { GenericRepository } from "@/api/repositories/GenericRepository";
-import { ObjectId } from "mongodb";
+import { UNABLE_TO_FIND_PRODUCT, UNABLE_TO_FIND_USER } from "@/common/utils/messages";
 
 export class ProductService extends GenericRepository<Product> {
   constructor(protected readonly productRepository: Repository<Product>) {
@@ -10,18 +10,34 @@ export class ProductService extends GenericRepository<Product> {
 
   async createProduct(product: Product): Promise<Product> {
     // You can add extra business logic here before saving, e.g., validation or default settings.
-    return await this.save(product);
+    try{
+      return await this.save(product);
+    } catch (error: any) {
+      throw new Error(`Error creating product: ${error.message}`);
+    }
+  }
+
+  async getProductById(id: ObjectId): Promise<Product | null> {
+    try {
+      return await this.productRepository.findOne({
+        where: { id },
+      });
+    } catch (error: any) {
+      throw new Error(UNABLE_TO_FIND_PRODUCT(id, error));
+    }
   }
 
   async updateProduct(product: Product): Promise<Product | null> {
-    const existingProduct = await this.findOne({ where: { id: product.id } });
-
-    if (!existingProduct) {
-      throw new Error(`Product with ID ${product.id} not found.`);
+    if (!product.id) {
+      throw new Error('Product ID is required to update the product.');
     }
 
-    // Update the product and return the result
-    return await this.update(product);
+    try {
+      await this.productRepository.update(product.id, product);
+      return await this.getProductById(product.id);
+    } catch (error: any) {
+      throw new Error(`Unable to update user with ID ${product.id}: ${error.message}`);
+    }
   }
 
   async deleteProduct(productId: string): Promise<void> {

@@ -11,7 +11,7 @@ export const {
   CORS_ORIGIN,
   HOST,
   NODE_ENV,
-  MONGODB_CONNECTION
+  MONGODB_CONNECTION,
 } = cleanEnv(process.env, {
   NODE_ENV: str({
     devDefault: testOnly("test"),
@@ -22,7 +22,11 @@ export const {
   CORS_ORIGIN: str({ devDefault: testOnly("https://localhost:3000") }),
   COMMON_RATE_LIMIT_MAX_REQUESTS: num({ devDefault: testOnly(1000) }),
   COMMON_RATE_LIMIT_WINDOW_MS: num({ devDefault: testOnly(1000) }),
-  MONGODB_CONNECTION: str({devDefault: testOnly("mongodb+srv://adeolaakinwoleme:<password>@salesapi.xtyup.mongodb.net/?retryWrites=true&w=majority&appName=SalesAPI")})
+  MONGODB_CONNECTION: str({
+    devDefault: testOnly(
+      "mongodb+srv://adeolaakinwoleme:<password>@salesapi.xtyup.mongodb.net/?retryWrites=true&w=majority&appName=SalesAPI",
+    ),
+  }),
 });
 
 export const envs = {

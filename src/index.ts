@@ -1,6 +1,7 @@
-import "reflect-metadata"
-import { PORT,NODE_ENV,HOST, } from "@/common/config/env/index";
-import { app, logger } from "@/server";
+import "reflect-metadata";
+import { HOST, NODE_ENV, PORT } from "@/common/config/env/index";
+import { app } from "@/server";
+import { logger } from "./common/config/logger/logger.config";
 
 const server = app.listen(PORT, () => {
   logger.info(`Server (${NODE_ENV}) running on port http://${HOST}:${PORT}`);

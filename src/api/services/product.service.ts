@@ -1,11 +1,19 @@
-import type { Product } from "@/api/models/product.model";
+import  { Product } from "@/api/models/product.model";
 import { GenericRepository } from "@/api/repositories/GenericRepository";
 import type { ObjectId } from "mongodb";
+import { Messages } from "@/common/utils/messages";
 import { DeleteResult, FindOneOptions, MoreThan, type Repository } from "typeorm";
+import { ApiLogger } from "@/common/dtos/api-logger";
+import { ApiError } from "@/common/dtos/api-error";
 
 export class ProductService extends GenericRepository<Product> {
+  private messages: Messages<ProductService>;
+  private logger: ApiLogger<ProductService>;
   constructor(protected readonly productRepository: Repository<Product>) {
+   
     super(productRepository);
+    this.logger = new ApiLogger(this);
+    this.messages = new Messages(this);
   }
 
   async createProduct(product: Product): Promise<Product> {
@@ -13,7 +21,7 @@ export class ProductService extends GenericRepository<Product> {
     try{
       return await this.save(product);
     } catch (error: any) {
-      throw new Error(`Error creating product: ${error.message}`);
+      throw new ApiError<Product>(this.messages.UNABLE_TO_CREATE_ENTITY(error),new Product(), error);
     }
   }
 
@@ -23,20 +31,20 @@ export class ProductService extends GenericRepository<Product> {
         where: { id },
       });
     } catch (error: any) {
-      throw new Error(UNABLE_TO_FIND_PRODUCT(id, error));
+      throw new Error(this.messages.UNABLE_TO_FIND_ENTITY(id, error));
     }
   }
 
   async updateProduct(product: Product): Promise<Product | null> {
     if (!product.id) {
-      throw new Error('Product ID is required to update the product.');
+      throw new ApiError<Product>(this.messages.ENTITY_ID_REQUIRED_TO_UPDATE(),new Product(), null);
     }
 
     try {
       await this.productRepository.update(product.id, product);
       return await this.getProductById(product.id);
     } catch (error: any) {
-      throw new Error(`Unable to update user with ID ${product.id}: ${error.message}`);
+      throw new ApiError<Product>(this.messages.UNABLE_TO_UPDATE_ENTITY(product.id, error),new Product(), error);
     }
   }
 
@@ -44,7 +52,7 @@ export class ProductService extends GenericRepository<Product> {
     const deleteResult = await this.delete(productId);
 
     if (deleteResult.affected === 0) {
-      throw new Error(`Product with ID ${productId} could not be deleted.`);
+      throw new ApiError<Product>(this.messages.UNABLE_TO_DELETE_ENTITY(productId, null),new Product(), null);
     }
   }
 

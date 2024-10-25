@@ -1,22 +1,27 @@
 import { Request, Response } from "express";
 import { OrderService } from "../services/order.service";
-import { handleError, handleSuccess } from "@/common/utils/http-handlers";
-import { ServiceResponse } from "@/common/dtos/service-response.dto";
-import { CREATE_SUCCESS, DELETE_SUCCESS, FETCH_SUCCESS, NOT_FOUND, UPDATE_SUCCESS } from "@/common/utils/messages";
 import { StatusCodes } from "http-status-codes";
 import { ObjectId } from "typeorm";
 import { Order } from "../models/order.model";
+import { Messages } from "@/common/utils/messages";
+import { ResponseHandler } from "@/common/utils/response-handler";
 
 export class OrderController {
-    constructor(private orderService: OrderService) {}
+  messages : Messages<Order>;
+  responseHandler: ResponseHandler<OrderController>;
+    constructor(private orderService: OrderService) {
+        this.messages= new Messages(new Order);
+        this.responseHandler = new ResponseHandler(this); 
+    }
 
     async createOrder(req: Request, res: Response): Promise<Response> {
         try {
             const orderData = req.body;
             const newOrder = this.orderService.createOrder(orderData)
-            return handleSuccess(CREATE_SUCCESS(Order), newOrder, res)
-        } catch (error: any) {
-           return handleError(res, error);
+            return this.responseHandler.handleSuccess(this.messages.CREATE_SUCCESS(), newOrder, res);
+          } catch (error: any) {
+            return this.responseHandler.handleError(res, error);
+          
         }
     }
 
@@ -26,11 +31,11 @@ export class OrderController {
           const orderId = new ObjectId(orderData.id);  
           const updatedOrder = await this.orderService.updateOrder({ ...orderData, id: orderId });  
           if (!updatedOrder) {
-            return handleError(res, { message:  NOT_FOUND(Order), statusCode: StatusCodes.NOT_FOUND });
+            return this.responseHandler.handleError(res, { message:  this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
           }
-          return handleSuccess(UPDATE_SUCCESS(Order), updatedOrder, res);
+          return this.responseHandler.handleSuccess(this.messages.UPDATE_SUCCESS(), updatedOrder, res);
         } catch (error: any) {
-          return handleError(res, error);
+          return this.responseHandler.handleError(res, error);
         }
       }
 
@@ -39,11 +44,11 @@ export class OrderController {
         try {
           const deletedOrder = await this.orderService.softDeleteOrder(orderId);
           if (!deletedOrder.affected) {
-            return handleError(res, { message: NOT_FOUND(Order), statusCode: StatusCodes.NOT_FOUND });
+            return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
           }
-          return handleSuccess(DELETE_SUCCESS(Order), deletedOrder, res);
+          return this.responseHandler.handleSuccess(this.messages.DELETE_SUCCESS(), deletedOrder, res);
         } catch (error: any) {
-          return handleError(res, error);
+          return this.responseHandler.handleError(res, error);
         }
     }
 
@@ -63,11 +68,11 @@ export class OrderController {
             const orderId = new ObjectId(req.params.id);
             const order = await this.orderService.findOrderById(orderId);
             if (!order) {
-                return handleError(res, { message: NOT_FOUND(Order), statusCode: StatusCodes.NOT_FOUND });
+                return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
             }
-            return handleSuccess(FETCH_SUCCESS, order, res);    
+            return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, order, res);    
         } catch (error : any) {
-            return handleError(res, error);    
+            return this.responseHandler.handleError(res, error);    
         }
     }
 

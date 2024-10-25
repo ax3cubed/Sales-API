@@ -1,22 +1,28 @@
 import { Request, Response } from "express";
 import { ProductService } from "../services/product.service";
-import { handleError, handleSuccess } from "@/common/utils/http-handlers";
 import { ServiceResponse } from "@/common/dtos/service-response.dto";
-import { CREATE_SUCCESS, DELETE_SUCCESS, FETCH_SUCCESS, NOT_FOUND, UPDATE_SUCCESS } from "@/common/utils/messages";
 import { StatusCodes } from "http-status-codes";
 import { ObjectId } from "typeorm";
 import { Product } from "../models/product.model";
+import { Messages } from "@/common/utils/messages";
+import { ResponseHandler } from "@/common/utils/response-handler";
 
 export class ProductController {
-    constructor(private productService: ProductService) {}
+  
+  messages : Messages<Product>;
+  responseHandler: ResponseHandler<ProductController>;
+    constructor(private productService: ProductService) {
+        this.messages= new Messages(new Product);
+        this.responseHandler = new ResponseHandler(this); 
+    }
 
     async createProduct(req: Request, res: Response): Promise<void> {
         const productData = req.body;
         try {
             const newProduct = await this.productService.createProduct(productData);
-            handleSuccess(CREATE_SUCCESS(Product), newProduct, res);
+            this.responseHandler.handleSuccess(this.messages.CREATE_SUCCESS(), newProduct, res);
         } catch (error) {
-            handleError(res, error);
+          this.responseHandler.handleError(res, error);
         }
     }
 
@@ -26,11 +32,11 @@ export class ProductController {
           const productId = new ObjectId(id);
           const product = await this.productService.getProductById(productId);
           if (!product) {
-            return handleError(res, { message: NOT_FOUND(Product), statusCode: StatusCodes.NOT_FOUND });
+            return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
           }
-          return handleSuccess(FETCH_SUCCESS, product, res);
+          return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, product, res);
         } catch (error: any) {
-          return handleError(res, error);
+          return this.responseHandler.handleError(res, error);
         }
       }
 
@@ -40,11 +46,11 @@ export class ProductController {
             const productId = req.params.productId;
             const updatedProduct = await this.productService.updateProduct({...productData, id: productId });
             if (!updatedProduct) {
-                return handleError(res, { message:  NOT_FOUND(Product), statusCode: StatusCodes.NOT_FOUND });
+                return this.responseHandler.handleError(res, { message:  this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
               }
-              return handleSuccess(UPDATE_SUCCESS(Product), updatedProduct, res);
+              return this.responseHandler.handleSuccess(this.messages.UPDATE_SUCCESS(), updatedProduct, res);
             } catch (error: any) {
-              return handleError(res, error);
+              return this.responseHandler.handleError(res, error);
         }
     }
 
@@ -53,9 +59,9 @@ export class ProductController {
         try {
           const productId = String(id);  
           await this.productService.deleteProduct(productId);
-          return handleSuccess(DELETE_SUCCESS(Product), null, res);
+          return this.responseHandler.handleSuccess(this.messages.DELETE_SUCCESS(), null, res);
         } catch (error: any) {
-          return handleError(res, error);
+          return this.responseHandler.handleError(res, error);
         }
     }
 
@@ -65,12 +71,12 @@ export class ProductController {
             const products = await this.productService.findProductsByOrder(orderId);
             
             if (products.length === 0) {
-                return handleError(res, { message: NOT_FOUND('Order or products'), statusCode: StatusCodes.NOT_FOUND });
+                return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
             }
             
-            return handleSuccess(FETCH_SUCCESS, products, res);
+            return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, products, res);
         } catch (error: any) {
-            return handleError(res, error);
+            return this.responseHandler.handleError(res, error);
         }
     }
 
@@ -78,9 +84,9 @@ export class ProductController {
         try {
             const products = await this.productService.findAvailableProducts();
             
-            return handleSuccess(FETCH_SUCCESS, products, res);
+            return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, products, res);
         } catch (error: any) {
-            return handleError(res, error);
+            return this.responseHandler.handleError(res, error);
         }
     }
 }

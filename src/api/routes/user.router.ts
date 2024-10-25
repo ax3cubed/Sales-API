@@ -41,11 +41,17 @@ userRouterRegistry.registerPath({
     description: 'Get user data by its ID',
     summary: 'Get a single user',
     tags: ["Users"],
-    request: {
-      params: z.object({
-        id: z.string().openapi({ example: '60c72b2f9b1d4e4b7c8a4e4d' }),
-      }),
+   parameters:[
+    {
+      name: "id",
+      in: "path",
+      required: true,
+      schema: {
+        type: "string",
+        example: "60c72b2f9b1d4e4b7c8a4e4d",
+      },
     },
+   ],
     responses: {
       200: {
         description: 'Object with user data.',

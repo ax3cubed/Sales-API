@@ -28,8 +28,8 @@ export class UserService extends GenericRepository<User> {
 
   async getUserById(id: ObjectId): Promise<User | null> {
     try {
-      return await this.userRepository.findOne({
-        where: { id },
+      return await this.userRepository.findOneBy({
+         id: id,
       });
     } catch (error: any) {
       throw new ApiError<User>(this.messages.UNABLE_TO_FIND_ENTITY(id, error),new User(), error);

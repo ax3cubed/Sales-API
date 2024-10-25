@@ -6,6 +6,9 @@ import { pino } from "pino";
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import { healthCheckRouter } from "@/api/routes/api-registry/health-check.router";
 import userRouter from "./api/routes/user.router";
+import orderRouter from "./api/routes/order.router";
+import productRouter from "./api/routes/product.router";
+import salesRouter from "./api/routes/sales.router";
 
 
 const app: Express = express();
@@ -21,6 +24,9 @@ app.use(helmet());
 // Routes
 app.use("/health-check", healthCheckRouter);
 app.use("/api/users", userRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api/products", productRouter);
+app.use("/api/sales", salesRouter);
 
 // Swagger UI
 app.use(openAPIRouter);

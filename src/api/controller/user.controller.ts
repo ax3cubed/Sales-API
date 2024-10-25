@@ -4,9 +4,9 @@ import type { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { User } from "../models/user.model";
 import type { UserService } from "../services/user.service";
-import { ObjectId } from "mongodb";
 import { Messages } from "@/common/utils/messages";
 import { ResponseHandler } from "@/common/utils/response-handler";
+import { ObjectId } from "mongodb";
 
 export class UserController {
    messages : Messages<User>;

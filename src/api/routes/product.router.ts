@@ -4,10 +4,13 @@ import { Product } from "../models/product.model";
 import { ProductController } from "../controller/product.controller";
 import { getDataSource } from "@/common/datasources/MongoDbDataSource";
 import { extendZodWithOpenApi, OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { z } from "zod";
+import { z, ZodTypeAny } from "zod";
+import { OpenAPIV3 } from 'openapi-types';
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 
 extendZodWithOpenApi(z);
+
+type OpenAPISchemaType = ZodTypeAny;
 
 const init = async () => {
     return await getDataSource();
@@ -27,21 +30,110 @@ const ProductSchema = z.object({
     updatedAt: z.string().optional().openapi({ example: "2023-01-02T00:00:00Z" })
   });
 
-
+  interface RouteConfig {
+    method: 'get' | 'post' | 'put' | 'delete' | 'patch';
+    path: string;
+    summary: string;
+    description: string;
+    schema: z.ZodTypeAny;
+    tags: string[];
+  }
 
 
 export const productRouterRegistry = new OpenAPIRegistry();
 
-productRouterRegistry.registerPath({
+function generateApiResponse(
+    schema: OpenAPISchemaType,
+    description: string = 'Successful operation'
+  ): Record<number, OpenAPIV3.ResponseObject> {
+    return {
+      200: {
+        description,
+        content: {
+          'application/json': {
+            schema: schema.openapi({}) as unknown as OpenAPIV3.SchemaObject,
+        },
+      },
+    },
+    400: { description: 'Bad request' },
+    404: { description: 'Not found' },
+  };
+}
+  
+  // Define the type for the request body structure
+  function createRequestBody(
+    schema: OpenAPISchemaType
+  ): OpenAPIV3.RequestBodyObject {
+    return {
+      required: true,
+      content: {
+        'application/json': {
+            schema: schema.openapi({}) as unknown as OpenAPIV3.SchemaObject,
+        },
+      },
+    };
+  }
+  
+  // Abstract route configuration function
+  function createRouteConfig(config: RouteConfig) {
+    return {
+      method: config.method,
+      path: config.path,
+      summary: config.summary,
+      description: config.description,
+      tags: config.tags,
+      responses: createApiResponse(config.schema, config.summary),
+    };
+  }
+  
+  // Registering routes in the OpenAPI registry
+  productRouterRegistry.registerPath(createRouteConfig({
     method: 'get',
     path: '/api/products',
-    description: 'Get a list of products',
-    summary: 'List all products',
-    tags: ["Products"],
-    responses: createApiResponse(ProductSchema.array(), 'List of products'), 
-});
-
-
+    summary: 'Get all products',
+    description: 'Fetch a list of all available products',
+    schema: ProductSchema.array(),
+    tags: ['Products'],
+  }));
+  
+  productRouterRegistry.registerPath(createRouteConfig({
+    method: 'get',
+    path: '/api/products/{id}',
+    summary: 'Get product by ID',
+    description: 'Fetch a single product by its unique ID',
+    schema: ProductSchema,
+    tags: ['Products'],
+  }));
+  
+  productRouterRegistry.registerPath({
+    method: 'post',
+    path: '/api/products',
+    summary: 'Create a new product',
+    description: 'Add a new product to the store',
+    tags: ['Products'],
+    requestBody: createRequestBody(ProductSchema),
+    responses: createApiResponse(ProductSchema, 'Product created successfully'),
+  });
+  
+  productRouterRegistry.registerPath({
+    method: 'put',
+    path: '/api/products/{id}',
+    summary: 'Update a product',
+    description: 'Update product details by ID',
+    tags: ['Products'],
+    requestBody: createRequestBody(ProductSchema),
+    responses: createApiResponse(ProductSchema, 'Product updated successfully'),
+  });
+  
+  productRouterRegistry.registerPath(createRouteConfig({
+    method: 'delete',
+    path: '/api/products/{id}',
+    summary: 'Delete a product',
+    description: 'Remove a product by its ID',
+    schema: z.object({ message: z.string().openapi({ example: "Product deleted successfully" }) }),
+    tags: ['Products'],
+  }));
+  
 
 init().then((MongoDbDataSource) => {
 const productService = new ProductService(MongoDbDataSource.getRepository(Product));

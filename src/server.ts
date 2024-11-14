@@ -9,6 +9,7 @@ import userRouter from "./api/routes/user.router";
 import orderRouter from "./api/routes/order.router";
 import productRouter from "./api/routes/product.router";
 import salesRouter from "./api/routes/sales.router";
+import { runSeeder } from "./api/seeder/seed";
 
 
 const app: Express = express();
@@ -30,5 +31,7 @@ app.use("/api/sales", salesRouter);
 
 // Swagger UI
 app.use(openAPIRouter);
+
+
 
 export { app };

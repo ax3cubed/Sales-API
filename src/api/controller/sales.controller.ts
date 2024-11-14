@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { SalesService } from "../services/sales.service";
 import { ServiceResponse } from "@/common/dtos/service-response.dto";
 import { StatusCodes } from "http-status-codes";
-import { ObjectId } from "typeorm";
+import { ObjectId } from "mongodb";
 import { Sales } from "../models/sales.model";
 import { ResponseHandler } from "@/common/utils/response-handler";
 import { Messages } from "@/common/utils/messages";

@@ -3,10 +3,12 @@ import { UserController } from "../controller/user.controller";
 import { User } from "../models/user.model";
 import { UserService } from "../services/user.service";
 import { z } from "zod"; 
-import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
+import { createApiRequest, createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { OpenAPIRegistry ,extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { getDataSource } from "@/common/datasources/MongoDbDataSource";
 import { validateRequest } from "@/common/utils/http-handlers";
+import { StatusCodes } from "http-status-codes";
+import { mergeRecordObjects } from "@/common/utils/utils";
 
 extendZodWithOpenApi(z);
 const UserSchema = z.object({
@@ -52,19 +54,13 @@ userRouterRegistry.registerPath({
       },
     },
    ],
-    responses: {
-      200: {
-        description: 'Object with user data.',
-        content: {
-          'application/json': {
-            schema: UserSchema,
-          },
-        },
-      },
-      204: {
-        description: 'No content - successful operation',
-      },
-    },
+    responses: mergeRecordObjects(
+      createApiResponse(UserSchema, 'Object with user data.',StatusCodes.OK),
+      createApiResponse(UserSchema, 'No content - successful operation',StatusCodes.NO_CONTENT)
+    )
+      
+       
+    ,
   });
   
   userRouterRegistry.registerPath({
@@ -74,25 +70,12 @@ userRouterRegistry.registerPath({
     summary: 'Create User',
     tags: ["Users"],
     request: {
-      body:  {
-          content:{
-              "application/json": { schema: UserSchema },
-          }
-      }
+      body:  createApiRequest(UserSchema, "User Create Request")
     },
-    responses: {
-      201: {
-        description: 'User created successfully',
-        content: {
-          'application/json': {
-            schema: UserSchema,
-          },
-        },
-      },
-      400: {
-        description: 'Bad Request - Invalid input',
-      },
-    },
+    responses: mergeRecordObjects(
+      createApiResponse(UserSchema, 'User created successfully',StatusCodes.CREATED),
+      createApiResponse(UserSchema, 'Bad Request - Invalid input',StatusCodes.BAD_REQUEST)
+    )
   });
   
   userRouterRegistry.registerPath({
@@ -105,25 +88,13 @@ userRouterRegistry.registerPath({
       params: z.object({
         id: z.string().openapi({ example: '60c72b2f9b1d4e4b7c8a4e4d' }),
       }),
-      body: {
-          content:{
-              "application/json": { schema: UserSchema },
-          }
-      }
+      body:  createApiRequest(UserSchema, "User Update Request"),
+      
     },
-    responses: {
-      200: {
-        description: 'User updated successfully',
-        content: {
-          'application/json': {
-            schema: UserSchema,
-          },
-        },
-      },
-      404: {
-        description: 'User not found',
-      },
-    },
+    responses: mergeRecordObjects(
+      createApiResponse(UserSchema, 'User updated successfully',StatusCodes.OK),
+      createApiResponse(UserSchema, 'User not found',StatusCodes.NOT_FOUND)
+    )
   });
   
   userRouterRegistry.registerPath({
@@ -137,14 +108,10 @@ userRouterRegistry.registerPath({
         id: z.string().openapi({ example: '60c72b2f9b1d4e4b7c8a4e4d' }),
       }),
     },
-    responses: {
-      204: {
-        description: 'User deleted successfully',
-      },
-      404: {
-        description: 'User not found',
-      },
-    },
+    responses: mergeRecordObjects(
+      createApiResponse(UserSchema, 'User deleted successfully',StatusCodes.NO_CONTENT),
+      createApiResponse(UserSchema, 'User not found',StatusCodes.NOT_FOUND)
+    )
   });
 
 init().then((MongoDbDataSource) => {

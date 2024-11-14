@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { OrderService } from "../services/order.service";
 import { StatusCodes } from "http-status-codes";
-import { ObjectId } from "typeorm";
+import { ObjectId } from "mongodb";
 import { Order } from "../models/order.model";
 import { Messages } from "@/common/utils/messages";
 import { ResponseHandler } from "@/common/utils/response-handler";

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ProductService } from "../services/product.service";
 import { ServiceResponse } from "@/common/dtos/service-response.dto";
 import { StatusCodes } from "http-status-codes";
-import { ObjectId } from "typeorm";
+import { ObjectId } from "mongodb";
 import { Product } from "../models/product.model";
 import { Messages } from "@/common/utils/messages";
 import { ResponseHandler } from "@/common/utils/response-handler";

@@ -76,4 +76,30 @@ export class OrderController {
         }
     }
 
+    async findOrdersByOrderNumber(req: Request, res: Response): Promise<Response> {
+      try {
+          const orderNumber = req.params.orderNumber;
+          const order = await this.orderService.findOrdersByOrderNumber(orderNumber)
+          if (!order) {
+              return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
+          }
+          return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, order, res);    
+      } catch (error : any) {
+          return this.responseHandler.handleError(res, error);    
+      }
+  }
+
+
+  async findAllOrders(req: Request, res: Response): Promise<Response> {
+    try {
+        
+        const orders = await this.orderService.find();
+        if (!orders) {
+            return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
+        }
+        return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, orders, res);    
+    } catch (error : any) {
+        return this.responseHandler.handleError(res, error);    
+    }
+}
 }

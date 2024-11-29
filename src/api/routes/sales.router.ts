@@ -35,14 +35,14 @@ salesRouterRegistry.registerPath({
 
 salesRouterRegistry.registerPath({
   method: 'get',
-  path: '/api/sales/{id}',
+  path: '/api/sales/',
   description: 'Get sales data by its ID',
   summary: 'Get a single Sale',
   tags: ["Sales"],
   parameters: [
     {
       name: 'id',
-      in: 'path',
+      in: 'query',
       required: true,
       schema: { type: 'string', example: '60c72b2f9b1d4e4b7c8a4e4d' },
     },

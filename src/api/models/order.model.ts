@@ -9,19 +9,22 @@ export class Order extends DecoratedEntity {
   @ObjectIdColumn()
   id?: ObjectId;
 
+  
   @Column({ type: "string" })
   @IsNotEmpty({ message: "Order number is required" })
   @IsString({ message: "Order number must be a string" })
   orderNumber?: string;
 
-  @Column({ type: "array" })
+  @Column({ type: "string" })
   @IsNotEmpty({ message: "Product id is required" })
   @IsString({ message: "Product id must be a string" })
-  @OneToMany(
-    (type) => Product,
-    (product) => product.order,
-  )
-  products?: Product[];
+  product_id?: string;
+  // @OneToMany(
+  //   (type) => Product,
+  //   (product) => product.order,
+  // )
+  // products?: Product[];
+
 
   @Column({ type: "number" })
   @IsNotEmpty({ message: "Quantity is required" })
@@ -29,9 +32,8 @@ export class Order extends DecoratedEntity {
   @IsPositive({ message: "Quantity must be a positive number" })
   quantity?: number;
 
-  @OneToOne((type) => User)
-  @JoinColumn()
-  user?: User;
+  @Column({ type: "string" })
+  user_id?: string;
 
   @Column({ type: "number" })
   @IsNotEmpty({ message: "Total price is required" })

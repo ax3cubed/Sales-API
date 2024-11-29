@@ -7,6 +7,7 @@ export class Seeder<T> implements ISeeder<T>{
         this.logger = new ApiLogger(this);
     };
     public async seed(count: number): Promise<void> {
+        console.log("Starting Seed");
         for (let index = 0; index < count; index++) {
             const item = this.generateItem();
             this.createInService(item);

@@ -29,11 +29,11 @@ export class Product extends DecoratedEntity {
   @IsPositive({ message: "Stock quantity must be a positive number" })
   stockQuantity!: number;
 
-  @ManyToOne(
-    () => Order,
-    (order) => order.products,
-  )
-  order?: Order;
+  // @ManyToOne(
+  //   () => Order,
+  //   (order) => order.products,
+  // )
+  // order?: Order;
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
    createdAt?: Date;

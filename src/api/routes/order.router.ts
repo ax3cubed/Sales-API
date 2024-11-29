@@ -14,11 +14,9 @@ extendZodWithOpenApi(z);
 const OrderSchema = z.object({
   id: z.string().optional().openapi({ example: "60c72b2f9b1d4e4b7c8a4e4d" }),
   orderNumber: z.string().min(1, { message: "Order number is required" }).openapi({ example: "ORD12345" }),
-  products: z.array(z.string().min(1, { message: "Product id is required" })).openapi({
-    example: ["60c72b2f9b1d4e4b7c8a4e4a", "60c72b2f9b1d4e4b7c8a4e4b"]
-  }),
+  product_id:  z.string().min(1, { message: "Product id is required" }).openapi({ example: "60c72b2f9b1d4e4b7c8a4e4b" }),
   quantity: z.number().int().positive({ message: "Quantity must be a positive integer" }).openapi({ example: 5 }),
-  user: z.string().optional().openapi({ example: "60c72b2f9b1d4e4b7c8a4e4c" }),
+  user_id: z.string().optional().openapi({ example: "60c72b2f9b1d4e4b7c8a4e4c" }),
   totalPrice: z.number().positive({ message: "Total price must be a positive number" }).openapi({ example: 99.99 }),
   createdAt: z.string().optional().openapi({ example: "2023-01-01T00:00:00Z" }),
   updatedAt: z.string().optional().openapi({ example: "2023-01-02T00:00:00Z" }),
@@ -40,21 +38,36 @@ orderRouterRegistry.registerPath({
 
 orderRouterRegistry.registerPath({
   method: 'get',
-  path: '/api/orders/{id}',
+  path: '/api/orders',
   description: 'Get order data by its ID',
   summary: 'Get a single order',
   tags: ["Orders"],
   parameters: [
     {
       name: 'id',
-      in: 'path',
+      in: 'query',
       required: true,
       schema: { type: 'string', example: '60c72b2f9b1d4e4b7c8a4e4d' },
     },
   ],
   responses: createApiResponse(OrderSchema, 'Order data retrieved successfully'),
 });
-
+orderRouterRegistry.registerPath({
+  method: 'get',
+  path: '/api/orders/getByOrderNumber/{orderNumber}',
+  description: 'Get order data by Order Number',
+  summary: 'Get orders by order number',
+  tags: ["Orders"],
+  parameters: [
+    {
+      name: 'orderNumber',
+      in: 'query',
+      required: true,
+      schema: { type: 'string', example: '60c72b2f9b1d4e4b7c8a4e4d' },
+    },
+  ],
+  responses: createApiResponse(OrderSchema, 'Order data retrieved successfully'),
+});
 orderRouterRegistry.registerPath({
   method: 'post',
   path: '/api/orders',
@@ -121,8 +134,9 @@ init().then((MongoDbDataSource) => {
   const orderService = new OrderService(MongoDbDataSource.getRepository(Order));
   const orderController = new OrderController(orderService);
   
-  orderRouter.get("/", (req, res) => orderController.findOrderById(req, res));
+  orderRouter.get("/", (req, res) => orderController.findAllOrders(req, res));
   orderRouter.get("/:id", (req, res) => orderController.findOrderById(req, res));
+  orderRouter.get("/getbyOrderNumber/:orderNumber", (req, res) => orderController.findOrdersByOrderNumber(req, res));
   orderRouter.post("/", (req, res) => orderController.createOrder(req, res));
   orderRouter.put("/", (req, res) => orderController.updateOrder(req, res));
   orderRouter.delete("/:id", (req, res) => orderController.softDeleteOrder(req, res));

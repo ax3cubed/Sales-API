@@ -28,7 +28,7 @@ const generateSales = (): Sales => {
   return sales;
 };
 
-const generateProduct = (order?: Order): Product => {
+const generateProduct = (): Product => {
   const product = new Product();
   product.name = faker.commerce.productName();
   product.description = faker.commerce.productDescription();
@@ -36,35 +36,39 @@ const generateProduct = (order?: Order): Product => {
     faker.commerce.price({ min: 1, max: 1000, dec: 2 })
   );
   product.stockQuantity = faker.number.int({ min: 1, max: 100 });
-  product.order = order;
+ 
   product.createdAt = faker.date.past();
   product.updateAt = new Date(); // Current date as the latest update
 
   return product;
 };
 
-const generateOrder = (user?: User, products?: Product[]): Order => {
+const generateOrder = (user?: User, product?: Product): Order => {
     const order = new Order();
     order.orderNumber = faker.string.alphanumeric(10).toUpperCase();
-    order.products = products || [];  // Products are passed in
-    order.quantity = order.products.reduce((acc, product) => acc + (product.stockQuantity ?? 0), 0);
-    order.user = user; // Assign the user to the order
-    order.totalPrice = order.products.reduce((acc, product) => acc + (product.price ?? 0), 0);
+    order.product_id = product?.id?.toString() // Products are passed in
+    order.quantity =  faker.number.int({min:1, max:10});
+    order.user_id = user?.id?.toString(); // Assign the user to the order
+    order.totalPrice = product?.price;
     order.createdAt = faker.date.past();
     order.updateAt = new Date(); // Current date as the latest update
     order.softDeleted = faker.datatype.boolean();
     return order;
   };
-  export async function runSeeder() {
+  const init = async () => {
+    return await getDataSource();
+  };
+   async function runSeeder() {
     try {
-        getDataSource().then((MongoDbDataSource) => {
+      init().then((MongoDbDataSource) => {
+          console.log("connection init ");
             const userService = new UserService(MongoDbDataSource.getRepository(User));
             const salesService = new SalesService(MongoDbDataSource.getRepository(Sales));
             const orderService = new OrderService(MongoDbDataSource.getRepository(Order));
             const productService = new ProductService(
               MongoDbDataSource.getRepository(Product)
             );
-          
+            console.log("database init complete");
             const createUserInService = (user: User): void => {
               userService.createUser(user);
             };
@@ -80,24 +84,25 @@ const generateOrder = (user?: User, products?: Product[]): Order => {
             const createProductInService = (product: Product): void => {
               productService.createProduct(product);
             };
-          
+           console.log("before seed after service initialization");
+           
             const productSeeder = new Seeder<Product>(generateProduct, createProductInService);
-            productSeeder.seed(500); 
+            productSeeder.seed(50); 
           
             const userSeeder = new Seeder<User>(generateUser, createUserInService);
-            userSeeder.seed(100);
+            userSeeder.seed(20);
           
           
             
             const salesSeeder = new Seeder<Sales>(generateSales, createSalesInService);
-            salesSeeder.seed(100);
+            salesSeeder.seed(10);
           
           
             userService.getAllUsers().then((users: User[]) => {
               const user = users[0];
               productService.find().then((products) => {
                 const orders = products.map((product) =>
-                  generateOrder(user, [product])
+                  generateOrder(user, product)
                 );
                 orders.forEach((order) => createOrderInService(order));
               });
@@ -112,3 +117,4 @@ const generateOrder = (user?: User, products?: Product[]): Order => {
     }
 
   }
+  runSeeder();

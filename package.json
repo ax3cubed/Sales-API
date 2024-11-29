@@ -7,7 +7,7 @@
     "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "build": "tsup",
     "start": "node dist/index.js",
-    "seed": "npx ts-node  src/api/seeder/seed.ts",
+    "seed": "npx tsup src/api/seeder/seed.ts  && node dist/seed.js",
     "clean": "rimraf dist coverage",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --fix",

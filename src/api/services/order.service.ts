@@ -41,4 +41,15 @@ export class OrderService extends GenericRepository<Order> {
       },
     });
   }
+  async findOrdersByOrderNumber(orderNumber: string): Promise<Order[]> {
+    try {
+      return this.orderRepository.find({
+        where: {
+          orderNumber: orderNumber,
+        },
+      });
+    } catch (error) {
+      throw new Error("Error Occured while retriving");
+    }
+  }
 }

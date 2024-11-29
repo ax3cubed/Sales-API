@@ -40,7 +40,6 @@ const ProductSchema = z.object({
     .int()
     .positive({ message: "Stock quantity must be a positive integer" })
     .openapi({ example: 100 }),
-  order: z.string().optional().openapi({ example: "60c72b2f9b1d4e4b7c8a4e4c" }), // Refers to associated Order ID
   createdAt: z.string().optional().openapi({ example: "2023-01-01T00:00:00Z" }),
   updatedAt: z.string().optional().openapi({ example: "2023-01-02T00:00:00Z" }),
 });
@@ -59,13 +58,13 @@ productRouterRegistry.registerPath({
 
 productRouterRegistry.registerPath({
   method: "get",
-  path: "/api/products/{id}",
+  path: "/api/products/",
   summary: "Get product by ID",
   description: "Fetch a single product by its unique ID",
   parameters: [
     {
       name: "id",
-      in: "path",
+      in: "query",
       required: true,
       schema: {
         type: "string",
@@ -155,14 +154,13 @@ init().then((MongoDbDataSource) => {
   productRouter.delete("/:id", (req, res) =>
     productController.deleteProduct(req, res)
   );
-  productRouter.get(
-    "/orders/:orderId/products",
-    productController.findProductsByOrder.bind(productController)
-  );
+
   productRouter.get(
     "/products/available",
     productController.findAvailableProducts.bind(productController)
+  
   );
+  productRouter.get("/",(req,res) => productController.findAll(req,res))
 });
 
 export default productRouter;

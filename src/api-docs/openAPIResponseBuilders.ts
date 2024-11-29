@@ -21,7 +21,7 @@ export function createApiRequest(schema: z.ZodTypeAny, description: string) {
     description,
     content: {
       "application/json": {
-        schema: ServiceResponseSchema(schema),
+      schema
       },
     },
   };

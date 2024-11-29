@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 import { Product } from "../models/product.model";
 import { Messages } from "@/common/utils/messages";
 import { ResponseHandler } from "@/common/utils/response-handler";
+import { th } from "@faker-js/faker/.";
 
 export class ProductController {
   
@@ -65,21 +66,7 @@ export class ProductController {
         }
     }
 
-    async findProductsByOrder(req: Request, res: Response): Promise<Response> {
-        try {
-            const orderId = new ObjectId(req.params.orderId);
-            const products = await this.productService.findProductsByOrder(orderId);
-            
-            if (products.length === 0) {
-                return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
-            }
-            
-            return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, products, res);
-        } catch (error: any) {
-            return this.responseHandler.handleError(res, error);
-        }
-    }
-
+  
     async findAvailableProducts(req: Request, res: Response): Promise<Response> {
         try {
             const products = await this.productService.findAvailableProducts();
@@ -88,5 +75,14 @@ export class ProductController {
         } catch (error: any) {
             return this.responseHandler.handleError(res, error);
         }
+    }
+
+    async findAll(req: Request , res: Response): Promise<Response>{
+      try {
+        const products = await this.productService.findAllProducts();
+        return this.responseHandler.handleSuccess(this.messages.FETCH_SUCCESS, products, res);
+      } catch (error) {
+        return this.responseHandler.handleError(res, error);
+      }
     }
 }

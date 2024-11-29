@@ -39,14 +39,14 @@ userRouterRegistry.registerPath({
   
   userRouterRegistry.registerPath({
     method: 'get',
-    path: '/api/users/{id}',
+    path: '/api/users/',
     description: 'Get user data by its ID',
     summary: 'Get a single user',
     tags: ["Users"],
    parameters:[
     {
       name: "id",
-      in: "path",
+      in: "query",
       required: true,
       schema: {
         type: "string",

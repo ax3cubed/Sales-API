@@ -56,10 +56,7 @@ export class ProductService extends GenericRepository<Product> {
     }
   }
 
-  // Example of finding products by order
-  async findProductsByOrder(orderId: ObjectId): Promise<Product[]> {
-    return await this.repository.find({ where: { order: { id: orderId } } });
-  }
+
 
   async findAvailableProducts(): Promise<Product[]> {
     return await this.repository.find({
@@ -67,5 +64,14 @@ export class ProductService extends GenericRepository<Product> {
         stockQuantity: MoreThan(0),
       },
     });
+  }
+
+  async findAllProducts(): Promise<Product[]> {
+    try {
+      return await this.repository.find();
+    } catch (error: any) {
+      throw new Error(`unable to retrive products: ${error.message}`);
+    }
+   
   }
 }

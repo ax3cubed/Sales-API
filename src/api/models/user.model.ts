@@ -1,11 +1,15 @@
 import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from "class-validator";
-import { Column, CreateDateColumn, Entity, type ObjectId, ObjectIdColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, type ObjectId, ObjectIdColumn, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { DecoratedEntity } from "./decorated.entity";
 
 @Entity()
 export class User extends DecoratedEntity {
+ 
   @ObjectIdColumn()
-  id?: ObjectId;
+  _id?: ObjectId;
+
+  @PrimaryColumn({type:'uuid', nullable: false})
+  id?:string;
 
   @Column({ type: "string" })
   @IsNotEmpty({ message: "Name is required" })

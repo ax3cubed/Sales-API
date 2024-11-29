@@ -7,6 +7,7 @@ import { User } from "./user.model";
 @Entity()
 export class Order extends DecoratedEntity {
   @ObjectIdColumn()
+  
   id?: ObjectId;
 
   

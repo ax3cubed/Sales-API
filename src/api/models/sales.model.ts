@@ -5,6 +5,7 @@ import { DecoratedEntity } from "./decorated.entity";
 @Entity()
 export class Sales extends DecoratedEntity {
   @ObjectIdColumn()
+  
   id?: ObjectId;
 
   @Column({ type: "int" })

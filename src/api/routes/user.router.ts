@@ -39,7 +39,7 @@ userRouterRegistry.registerPath({
   
   userRouterRegistry.registerPath({
     method: 'get',
-    path: '/api/users/',
+    path: '/api/users/getuser',
     description: 'Get user data by its ID',
     summary: 'Get a single user',
     tags: ["Users"],
@@ -120,7 +120,7 @@ init().then((MongoDbDataSource) => {
   
    
   userRouter.get("/", (req, res) => userController.getAllUsers(req, res));
-  userRouter.get("/:id", (req, res) => userController.getUserById(req, res));
+  userRouter.get("/getuser", (req, res) => userController.getUserById(req, res));
   userRouter.post("/", validateRequest(User),(req, res, next) => userController.createUser(req, res, next));
   userRouter.put("/:id", validateRequest(User),(req, res, next) => userController.updateUser(req, res, next));
   userRouter.delete("/:id", (req, res) => userController.deleteUser(req, res));

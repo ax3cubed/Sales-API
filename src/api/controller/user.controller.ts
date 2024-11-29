@@ -26,9 +26,9 @@ export class UserController {
   }
 
   async getUserById(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
+    const { id } = req.query;
     try {
-      const userId = new ObjectId(id);
+      const userId = new ObjectId(id?.toString());
       const user = await this.userService.getUserById(userId);
       if (!user) {
       return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND } );

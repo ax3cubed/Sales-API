@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, ManyToOne, type ObjectId, ObjectIdColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, type ObjectId, ObjectIdColumn, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { DecoratedEntity } from "./decorated.entity";
 import { Order } from "./order.model"; // Adjust the import path as necessary
 

@@ -1,5 +1,5 @@
 
-import type { ObjectId, Repository } from "typeorm";
+import type {  ObjectId, Repository } from "typeorm";
 import { User } from "../models/user.model";
 import { GenericRepository } from "../repositories/GenericRepository";
 import { ApiError } from "@/common/dtos/api-error";
@@ -29,7 +29,7 @@ export class UserService extends GenericRepository<User> {
   async getUserById(id: ObjectId): Promise<User | null> {
     try {
       return await this.userRepository.findOneBy({
-         id: id,
+         _id:id
       });
     } catch (error: any) {
       throw new ApiError<User>(this.messages.UNABLE_TO_FIND_ENTITY(id, error),new User(), error);
@@ -51,7 +51,10 @@ export class UserService extends GenericRepository<User> {
 
     try {
       await this.userRepository.update(user.id, user); // Now it's safe to pass `user.id`
-      return await this.getUserById(user.id);
+      if (!user._id) {
+        throw new ApiError<User>(this.messages.ENTITY_ID_REQUIRED_TO_UPDATE(), new User(), null);
+      }
+      return await this.getUserById(user._id);
     } catch (error: any) {
       throw new ApiError<User>(this.messages.UNABLE_TO_UPDATE_ENTITY(user.id,error),error);
     }

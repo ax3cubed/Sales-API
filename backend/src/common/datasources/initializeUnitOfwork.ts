@@ -2,12 +2,8 @@ import { Product } from "@/api/models/product.model";
 import { Sales } from "@/api/models/sales.model";
 import { User } from "@/api/models/user.model";
 import { UnitOfWork } from "@/api/repositories/UnitOfWork";
-import { ProductService } from "@/api/services/product.service";
-import { SalesService } from "@/api/services/sales.service";
-import { UserService } from "@/api/services/user.service";
 import { getDataSource } from "./MongoDbDataSource";
 import { Order } from "@/api/models/order.model";
-import { OrderService } from "@/api/services/order.service";
 
  
 

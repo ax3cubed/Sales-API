@@ -4,12 +4,14 @@ import { GenericRepository } from "../repositories/GenericRepository";
 import { ApiError } from "@/common/dtos/api-error";
 import { Messages } from "@/common/utils/messages";
 import { ObjectId } from "mongodb";
+import { UnitOfWork } from "../repositories/UnitOfWork";
 
-export class SalesService extends GenericRepository<Sales> {
+export class SalesService {
   private messages: Messages<Sales>;
 
-  constructor(protected readonly salesRepository: Repository<Sales>) {
-    super(salesRepository);
+  private salesRepository: Repository<Sales>;
+  constructor(unitOfWork: UnitOfWork) {
+     this.salesRepository = unitOfWork.getSalesRepository();
     this.messages = new Messages(new Sales());
   }
 

@@ -4,12 +4,14 @@ import { GenericRepository } from "../repositories/GenericRepository";
 import { ApiError } from "@/common/dtos/api-error";
 import { Messages } from "@/common/utils/messages";
 import { ObjectId } from "mongodb";
+import { UnitOfWork } from "../repositories/UnitOfWork";
 
-export class UserService extends GenericRepository<User> {
+export class UserService   {
   private messages: Messages<User>;
+  private  userRepository: Repository<User>
 
-  constructor(protected readonly userRepository: Repository<User>) {
-    super(userRepository)
+  constructor(unitOfWork: UnitOfWork) {
+    this.userRepository = unitOfWork.getUserRepository();
 
     this.messages = new Messages(new User());
   }

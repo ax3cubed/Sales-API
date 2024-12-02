@@ -9,6 +9,7 @@ import { getDataSource } from "@/common/datasources/MongoDbDataSource";
 import { validateRequest } from "@/common/utils/http-handlers";
 import { StatusCodes } from "http-status-codes";
 import { mergeRecordObjects } from "@/common/utils/utils";
+import { initializeUnitOfWork } from "@/common/datasources/initializeUnitOfwork";
 
 extendZodWithOpenApi(z);
 const UserSchema = z.object({
@@ -19,11 +20,7 @@ const UserSchema = z.object({
   createdAt: z.string().optional().openapi({ example: "2023-01-01T00:00:00Z" }),
   updatedAt: z.string().optional().openapi({ example: "2023-01-02T00:00:00Z" }),
 });
-
-const init = async () => {
-    return await getDataSource();
-};
-  
+ 
 const userRouter = Router();
  
 
@@ -114,9 +111,10 @@ userRouterRegistry.registerPath({
     )
   });
 
-init().then((MongoDbDataSource) => {
-  const userService = new UserService(MongoDbDataSource.getRepository(User));
-  const userController = new UserController(userService);
+  initializeUnitOfWork().then((unitOfWork) => {
+    const userService = new UserService(unitOfWork);
+    const userController = new UserController(userService);
+ 
   
    
   userRouter.get("/", (req, res) => userController.getAllUsers(req, res));

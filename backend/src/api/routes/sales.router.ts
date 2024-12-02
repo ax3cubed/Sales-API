@@ -8,6 +8,7 @@ import { z, ZodTypeAny } from "zod";
 import { createApiRequest, createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { mergeRecordObjects } from "@/common/utils/utils";
 import { StatusCodes } from "http-status-codes";
+import { initializeUnitOfWork } from "@/common/datasources/initializeUnitOfwork";
 
 extendZodWithOpenApi(z);
 
@@ -111,12 +112,9 @@ salesRouterRegistry.registerPath({
 
 const salesRouter = Router();
 
-const init = async () => {
-    return await getDataSource();
-  };
-
-init().then((MongoDbDataSource) => {
-  const salesService = new SalesService(MongoDbDataSource.getRepository(Sales));
+ 
+initializeUnitOfWork().then((unitOfWork) => {
+  const salesService = new SalesService(unitOfWork);
   const salesController = new SalesController(salesService);
 
   salesRouter.get("/", (req, res) => salesController.getAllSales(req, res));

@@ -9,6 +9,7 @@ import { createApiRequest, createApiResponse } from "@/api-docs/openAPIResponseB
 import { mergeRecordObjects } from "@/common/utils/utils";
 import { StatusCodes } from "http-status-codes";
 import { Product } from "../models/product.model";
+import { initializeUnitOfWork } from "@/common/datasources/initializeUnitOfwork";
 
 extendZodWithOpenApi(z);
 
@@ -131,8 +132,8 @@ const init = async () => {
   return await getDataSource();
 };
 
-init().then((MongoDbDataSource) => {
-  const orderService = new OrderService(MongoDbDataSource.getMongoRepository(Order), MongoDbDataSource.getMongoRepository(Product));
+initializeUnitOfWork().then((unitOfWork) => {
+  const orderService = new OrderService(unitOfWork);
   const orderController = new OrderController(orderService);
   
   orderRouter.get("/", (req, res) => orderController.findAllOrders(req, res));

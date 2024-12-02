@@ -11,14 +11,13 @@ import { z, ZodTypeAny } from "zod";
 import { createApiRequest, createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { mergeRecordObjects } from "@/common/utils/utils";
 import { StatusCodes } from "http-status-codes";
+import { initializeUnitOfWork } from "@/common/datasources/initializeUnitOfwork";
 
 extendZodWithOpenApi(z);
 
  
 
-const init = async () => {
-  return await getDataSource();
-};
+ 
 const productRouter = Router();
 
 const ProductSchema = z.object({
@@ -137,9 +136,9 @@ productRouterRegistry.registerPath(
   }
 );
 
-init().then((MongoDbDataSource) => {
+initializeUnitOfWork().then((unitOfWork) => {
   const productService = new ProductService(
-    MongoDbDataSource.getRepository(Product)
+    unitOfWork
   );
   const productController = new ProductController(productService);
   productRouter.get("/:id", (req, res) =>

@@ -9,17 +9,18 @@ import { validateOrder } from "./service.validators/order.validators";
 import { generateOrderNumber } from "@/common/utils/utils";
 import { OrderDto } from "../dto/order.dto";
 import { ProductDto } from "../dto/product.dto";
+import { UnitOfWork } from "../repositories/UnitOfWork";
 
-export class OrderService extends GenericRepository<Order> {
+export class OrderService {
   private messages: Messages<Order>;
   private _productRepository: Repository<Product>;
 
-  constructor(
-    protected readonly orderRepository: Repository<Order>,
-    protected readonly productRepository: Repository<Product>
-  ) {
-    super(orderRepository);
-    this._productRepository = productRepository;
+  private _orderRepository: Repository<Order>
+
+  constructor( unitOfWork: UnitOfWork) {
+ 
+    this._productRepository = unitOfWork.getProductRepository();
+    this._orderRepository = unitOfWork.getOrderRepository();
     this.messages = new Messages(new Order());
   }
 
@@ -37,7 +38,7 @@ export class OrderService extends GenericRepository<Order> {
         order.user_id = orderDto.user_id;
         return order;
       });
-      return await this.orderRepository.save(orders);
+      return await this._orderRepository.save(orders);
     } catch (error: any) {
       throw new ApiError<Order[]>(
         `Failed to create orders: ${error.message}`,
@@ -57,7 +58,7 @@ export class OrderService extends GenericRepository<Order> {
     }
 
     try {
-      await this.orderRepository.save(order);
+      await this._orderRepository.save(order);
       return await this.findOrderById(order._id);
     } catch (error: any) {
       throw new ApiError<Order>(
@@ -78,7 +79,7 @@ export class OrderService extends GenericRepository<Order> {
     }
 
     try {
-      return await this.orderRepository.update(id, { softDeleted: true });
+      return await this._orderRepository.update(id, { softDeleted: true });
     } catch (error: any) {
       throw new ApiError<Order>(
         this.messages.UNABLE_TO_DELETE_ENTITY(id, error),
@@ -90,7 +91,7 @@ export class OrderService extends GenericRepository<Order> {
 
   async findOrderById(id: ObjectId): Promise<Order | null> {
     try {
-      return await this.orderRepository.findOneBy({ _id: id });
+      return await this._orderRepository.findOneBy({ _id: id });
     } catch (error: any) {
       throw new ApiError<Order>(
         this.messages.UNABLE_TO_FIND_ENTITY(id, error),
@@ -102,7 +103,7 @@ export class OrderService extends GenericRepository<Order> {
 
   async findOrdersByOrderNumber(orderNumber: string): Promise<Order[]> {
     try {
-      return await this.orderRepository.find({ where: { orderNumber } });
+      return await this._orderRepository.find({ where: { orderNumber } });
     } catch (error: any) {
       throw new ApiError<Order>(
         this.messages.UNABLE_TO_RETRIEVE_ENTITY(error),
@@ -116,7 +117,7 @@ export class OrderService extends GenericRepository<Order> {
     Array<{ orderNumber: string; products: any[] }>
   > {
     try {
-      const orders = await this.orderRepository.find();
+      const orders = await this._orderRepository.find();
       if (!orders || orders.length === 0) {
         throw new ApiError<Order>(
           this.messages.NOT_FOUND(),

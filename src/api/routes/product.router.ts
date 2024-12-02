@@ -14,7 +14,7 @@ import { StatusCodes } from "http-status-codes";
 
 extendZodWithOpenApi(z);
 
-type OpenAPISchemaType = ZodTypeAny;
+ 
 
 const init = async () => {
   return await getDataSource();
@@ -139,7 +139,7 @@ productRouterRegistry.registerPath(
 
 init().then((MongoDbDataSource) => {
   const productService = new ProductService(
-    MongoDbDataSource.getMongoRepository(Product)
+    MongoDbDataSource.getRepository(Product)
   );
   const productController = new ProductController(productService);
   productRouter.get("/:id", (req, res) =>

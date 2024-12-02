@@ -1,64 +1,114 @@
 import { ObjectId } from "mongodb";
-import type { MongoRepository, Repository, UpdateResult } from "typeorm";
+import type {   Repository, UpdateResult } from "typeorm";
 import { Order } from "../models/order.model";
-import { GenericRepository } from "../repositories/GenericRepository";
-import { validateOrder } from "./service.validators/order.validators";
-import { Messages } from "@/common/utils/messages";
 import { Product } from "../models/product.model";
+import { GenericRepository } from "../repositories/GenericRepository";
+import { Messages } from "@/common/utils/messages";
+import { ApiError } from "@/common/dtos/api-error";
+import { validateOrder } from "./service.validators/order.validators";
+import { generateOrderNumber } from "@/common/utils/utils";
+import { OrderDto } from "../dto/order.dto";
+import { ProductDto } from "../dto/product.dto";
+
 export class OrderService extends GenericRepository<Order> {
   private messages: Messages<Order>;
-  private _productRepository: MongoRepository<Product>;
+  private _productRepository: Repository<Product>;
+
   constructor(
-    protected readonly orderRepository: MongoRepository<Order>,
-    protected readonly productRepository: MongoRepository<Product>
+    protected readonly orderRepository: Repository<Order>,
+    protected readonly productRepository: Repository<Product>
   ) {
     super(orderRepository);
     this._productRepository = productRepository;
-    this.messages = new Messages(Order);
+    this.messages = new Messages(new Order());
   }
 
-  async createOrder(order: Order): Promise<Order> {
+  async createOrder(orderDto: OrderDto): Promise<Order[]> {
     try {
-      return this.orderRepository.save(order);
+      
+      const orderNumber = generateOrderNumber(orderDto.user_id);
+
+      const orders: Order[] = orderDto.products.map((product: ProductDto) => {
+        const order = new Order();
+        order.orderNumber = orderNumber;
+        order.product_id = product.product_id;
+        order.quantity = product.quantity;
+        order.totalPrice = product.totalPrice;
+        order.user_id = orderDto.user_id;
+        return order;
+      });
+      return await this.orderRepository.save(orders);
     } catch (error: any) {
-      throw new Error(`Unable to create order: ${error.message}`);
+      throw new ApiError<Order[]>(
+        `Failed to create orders: ${error.message}`,
+        [],
+        error
+      );
     }
   }
 
   async updateOrder(order: Order): Promise<Order | null> {
     if (!validateOrder(order)) {
-      throw new Error("Unable to create order: Valiation failed");
+      throw new ApiError<Order>(
+        this.messages.ENTITY_VALIDATION_FAILED(),
+        order,
+        null
+      );
     }
-  
-    await this.orderRepository.save(order);
-    return await this.findOrderById(order._id);
+
+    try {
+      await this.orderRepository.save(order);
+      return await this.findOrderById(order._id);
+    } catch (error: any) {
+      throw new ApiError<Order>(
+        this.messages.UNABLE_TO_UPDATE_ENTITY(order._id, error),
+        order,
+        error
+      );
+    }
   }
 
   async softDeleteOrder(id: ObjectId): Promise<UpdateResult> {
-    const orderToDelete = new Order();
-    orderToDelete._id = id;
-    orderToDelete.softDeleted = true;
-    return this.orderRepository.update(orderToDelete._id, orderToDelete);
+    if (!id) {
+      throw new ApiError<Order>(
+        this.messages.ENTITY_ID_REQUIRED_TO_DELETE(),
+        new Order(),
+        null
+      );
+    }
+
+    try {
+      return await this.orderRepository.update(id, { softDeleted: true });
+    } catch (error: any) {
+      throw new ApiError<Order>(
+        this.messages.UNABLE_TO_DELETE_ENTITY(id, error),
+        new Order(),
+        error
+      );
+    }
   }
 
   async findOrderById(id: ObjectId): Promise<Order | null> {
     try {
-      return await this.orderRepository.findOneBy({
-        _id: id,
-      });
+      return await this.orderRepository.findOneBy({ _id: id });
     } catch (error: any) {
-      throw new Error(this.messages.UNABLE_TO_FIND_ENTITY(id, error));
+      throw new ApiError<Order>(
+        this.messages.UNABLE_TO_FIND_ENTITY(id, error),
+        new Order(),
+        error
+      );
     }
   }
+
   async findOrdersByOrderNumber(orderNumber: string): Promise<Order[]> {
     try {
-      return this.orderRepository.find({
-        where: {
-          orderNumber: orderNumber,
-        },
-      });
-    } catch (error) {
-      throw new Error("Error Occured while retriving");
+      return await this.orderRepository.find({ where: { orderNumber } });
+    } catch (error: any) {
+      throw new ApiError<Order>(
+        this.messages.UNABLE_TO_RETRIEVE_ENTITY(error),
+        new Order(),
+        error
+      );
     }
   }
 
@@ -66,114 +116,69 @@ export class OrderService extends GenericRepository<Order> {
     Array<{ orderNumber: string; products: any[] }>
   > {
     try {
-      // Step 1: Retrieve all orders from the database
       const orders = await this.orderRepository.find();
-
       if (!orders || orders.length === 0) {
-        throw new Error("No orders found");
+        throw new ApiError<Order>(
+          this.messages.NOT_FOUND(),
+          new Order(),
+          null
+        );
       }
 
-      // Step 2: Group orders by orderNumber
-      const groupedOrders = orders.reduce(
-        (
-          acc: Record<
-            string,
-            {
-              orderNumber: string;
-              user_id: string;
-              totalPrice: number;
-              products: any[];
-              updateAt: Date;
-              createdAt: Date;
-            }
-          >,
-          order
-        ) => {
-          const {
+      const groupedOrders = orders.reduce((acc: { [key: string]: any }, order) => {
+        const { orderNumber, product_id, quantity, totalPrice, user_id, ...details } = order;
+        if (!orderNumber) {
+          throw new ApiError<Order>(
+            this.messages.INVALID_ENTITY_DATA(),
+            new Order(),
+            null
+          );
+        }
+
+        if (!acc[orderNumber]) {
+          acc[orderNumber] = {
             orderNumber,
-            product_id,
-            quantity,
-            totalPrice,
-            user_id,
-            ...orderDetails
-          } = order;
-          if (!orderNumber) {
-            throw new Error("Order number is undefined");
-          }
+            user_id: user_id || "",
+            totalPrice: totalPrice || 0,
+            products: [],
+            createdAt: details.createdAt || new Date(),
+            updatedAt: details.updateAt || new Date(),
+          };
+        }
 
-          // Initialize the group if not present
-          if (!acc[orderNumber]) {
-            acc[orderNumber] = {
-              orderNumber,
-              user_id: user_id ?? "",
-              totalPrice: totalPrice ?? 0,
-              products: [],
-              updateAt: orderDetails.updateAt ?? new Date(),
-              createdAt: orderDetails.createdAt ?? new Date(),
-            };
-          }
+        acc[orderNumber].products.push({ product_id, quantity, ...details });
+        return acc;
+      }, {});
 
-          // Add product reference and order details to the group
-          acc[orderNumber].products.push({
-            product_id,
-            quantity,
-            ...orderDetails,
-          });
-
-          return acc;
-        },
-        {}
-      );
-
-      // Step 3: For each order group, fetch the product details
       const result = await Promise.all(
-        Object.entries(groupedOrders).map(
-          async ([
-            orderNumber,
-            {
-              orderNumber: _orderNumber,
-              user_id,
-              totalPrice,
-              products,
-              createdAt,
-              updateAt,
-            },
-          ]) => {
-            // Get all product details for the products in this order
-            const productDetails = await Promise.all(
-              products.map(async (order) => {
-                const product = await this.productRepository.findOneBy({
-                  _id: new ObjectId(order.product_id),
-                });
+        Object.entries(groupedOrders).map(async ([orderNumber, group]) => {
+          const products = await Promise.all(
+            group.products.map(async (order: { product_id: string; quantity: number }) => {
+              const product = await this._productRepository.findOneBy({
+                _id: new ObjectId(order.product_id),
+              });
 
-                // If the product exists, map the details
-                return {
-                  _id: product?._id,
-                  name: product?.name,
-                  description: product?.description,
-                  price: product?.price,
-                  stockQuantity: product?.stockQuantity,
-                  quantity: order.quantity, // From the order
-                };
-              })
-            );
+              return {
+                ...product,
+                quantity: order.quantity,
+              };
+            })
+          );
 
-            // Return the order with product details
-            return {
-              orderNumber: _orderNumber,
-              products: productDetails,
-              user_id,
-              totalPrice,
-              createdAt,
-              updateAt,
-            };
-          }
-        )
+          return {
+            ...group,
+            products,
+          };
+        })
       );
 
       return result;
     } catch (error: any) {
-      throw new Error(`Failed to retrieve orders: ${error.message}`);
+      throw new ApiError<Order>(
+        this.messages.UNABLE_TO_RETRIEVE_ENTITY(error),
+        new Order(),
+        error
+      );
     }
   }
 }

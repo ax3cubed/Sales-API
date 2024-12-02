@@ -2,14 +2,14 @@ import  { Product } from "@/api/models/product.model";
 import { GenericRepository } from "@/api/repositories/GenericRepository";
 import type { ObjectId } from "mongodb";
 import { Messages } from "@/common/utils/messages";
-import { DeleteResult, FindOneOptions, MongoRepository, MoreThan, type Repository } from "typeorm";
+import {   MoreThan, type Repository } from "typeorm";
 import { ApiLogger } from "@/common/dtos/api-logger";
 import { ApiError } from "@/common/dtos/api-error";
 
 export class ProductService extends GenericRepository<Product> {
   private messages: Messages<ProductService>;
   private logger: ApiLogger<ProductService>;
-  constructor(protected readonly productRepository: MongoRepository<Product>) {
+  constructor(protected readonly productRepository: Repository<Product>) {
    
     super(productRepository);
     this.logger = new ApiLogger(this);

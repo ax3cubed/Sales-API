@@ -115,7 +115,7 @@ userRouterRegistry.registerPath({
   });
 
 init().then((MongoDbDataSource) => {
-  const userService = new UserService(MongoDbDataSource.getMongoRepository(User));
+  const userService = new UserService(MongoDbDataSource.getRepository(User));
   const userController = new UserController(userService);
   
    

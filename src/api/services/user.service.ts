@@ -1,4 +1,4 @@
-import type { MongoRepository } from "typeorm";
+import type { Repository } from "typeorm";
 import { User } from "../models/user.model";
 import { GenericRepository } from "../repositories/GenericRepository";
 import { ApiError } from "@/common/dtos/api-error";
@@ -8,7 +8,7 @@ import { ObjectId } from "mongodb";
 export class UserService extends GenericRepository<User> {
   private messages: Messages<User>;
 
-  constructor(protected readonly userRepository: MongoRepository<User>) {
+  constructor(protected readonly userRepository: Repository<User>) {
     super(userRepository)
 
     this.messages = new Messages(new User());

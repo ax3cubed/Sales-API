@@ -116,7 +116,7 @@ const init = async () => {
   };
 
 init().then((MongoDbDataSource) => {
-  const salesService = new SalesService(MongoDbDataSource.getMongoRepository(Sales));
+  const salesService = new SalesService(MongoDbDataSource.getRepository(Sales));
   const salesController = new SalesController(salesService);
 
   salesRouter.get("/", (req, res) => salesController.getAllSales(req, res));

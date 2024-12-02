@@ -25,4 +25,8 @@ export class Messages<T> {
     ENTITY_ID_REQUIRED_TO_DELETE = () => `${this.entityName} ID is required to delete the user.`;
     NO_ENTITY_FOUND_TO_DELETE = (id: any) => `No ${this.entityName} found with ID ${id} to delete.`;
     UNABLE_TO_DELETE_ENTITY = (id: any, error: any) => `Unable to delete ${this.entityName} with ID ${id}: ${error.message}`;
+
+    ENTITY_VALIDATION_FAILED= () => `${this.entityName} validation failed`
+    INVALID_ENTITY_DATA = () =>`Invalid ${this.entityName} data`
+    
   }

@@ -1,16 +1,15 @@
 import { 
   DeleteResult, 
   EntityManager, 
-  MongoRepository, 
-  FindOptions, 
+  Repository,
+  FindOneOptions, 
 } from "typeorm";
 import { IRepository } from "../interfaces/IRepository";
 import { DecoratedEntity } from "../models/decorated.entity";
-import { MongoFindOneOptions } from "typeorm/find-options/mongodb/MongoFindOneOptions";
 import { ObjectId } from "mongodb";
 
 export class GenericRepository<T extends DecoratedEntity> implements IRepository<T> {
-  constructor(protected readonly repository: MongoRepository<T>) {}
+  constructor(protected readonly repository: Repository<T>) {}
 
   public get manager(): EntityManager {
     return this.repository.manager;
@@ -22,7 +21,7 @@ export class GenericRepository<T extends DecoratedEntity> implements IRepository
   }
 
  
-  async findOne(options: MongoFindOneOptions<T>): Promise<T | null> {
+  async findOne(options: FindOneOptions<T>): Promise<T | null> {
     return await this.repository.findOne(options);
   }
 

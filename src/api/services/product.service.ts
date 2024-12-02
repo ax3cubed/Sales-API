@@ -2,14 +2,14 @@ import  { Product } from "@/api/models/product.model";
 import { GenericRepository } from "@/api/repositories/GenericRepository";
 import type { ObjectId } from "mongodb";
 import { Messages } from "@/common/utils/messages";
-import { DeleteResult, FindOneOptions, MoreThan, type Repository } from "typeorm";
+import { DeleteResult, FindOneOptions, MongoRepository, MoreThan, type Repository } from "typeorm";
 import { ApiLogger } from "@/common/dtos/api-logger";
 import { ApiError } from "@/common/dtos/api-error";
 
 export class ProductService extends GenericRepository<Product> {
   private messages: Messages<ProductService>;
   private logger: ApiLogger<ProductService>;
-  constructor(protected readonly productRepository: Repository<Product>) {
+  constructor(protected readonly productRepository: MongoRepository<Product>) {
    
     super(productRepository);
     this.logger = new ApiLogger(this);
@@ -28,7 +28,7 @@ export class ProductService extends GenericRepository<Product> {
   async getProductById(id: ObjectId): Promise<Product | null> {
     try {
       return await this.productRepository.findOne({
-        where: { id },
+        where: { _id:id },
       });
     } catch (error: any) {
       throw new Error(this.messages.UNABLE_TO_FIND_ENTITY(id, error));
@@ -36,15 +36,15 @@ export class ProductService extends GenericRepository<Product> {
   }
 
   async updateProduct(product: Product): Promise<Product | null> {
-    if (!product.id) {
+    if (!product._id) {
       throw new ApiError<Product>(this.messages.ENTITY_ID_REQUIRED_TO_UPDATE(),new Product(), null);
     }
 
     try {
-      await this.productRepository.update(product.id, product);
-      return await this.getProductById(product.id);
+      await this.productRepository.save( product);
+      return await this.getProductById(product._id);
     } catch (error: any) {
-      throw new ApiError<Product>(this.messages.UNABLE_TO_UPDATE_ENTITY(product.id, error),new Product(), error);
+      throw new ApiError<Product>(this.messages.UNABLE_TO_UPDATE_ENTITY(product._id, error),new Product(), error);
     }
   }
 

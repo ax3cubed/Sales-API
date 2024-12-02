@@ -39,14 +39,14 @@ userRouterRegistry.registerPath({
   
   userRouterRegistry.registerPath({
     method: 'get',
-    path: '/api/users/getuser',
+    path: '/api/users/{id}',
     description: 'Get user data by its ID',
     summary: 'Get a single user',
     tags: ["Users"],
    parameters:[
     {
       name: "id",
-      in: "query",
+      in: "path",
       required: true,
       schema: {
         type: "string",
@@ -115,12 +115,12 @@ userRouterRegistry.registerPath({
   });
 
 init().then((MongoDbDataSource) => {
-  const userService = new UserService(MongoDbDataSource.getRepository(User));
+  const userService = new UserService(MongoDbDataSource.getMongoRepository(User));
   const userController = new UserController(userService);
   
    
   userRouter.get("/", (req, res) => userController.getAllUsers(req, res));
-  userRouter.get("/getuser", (req, res) => userController.getUserById(req, res));
+  userRouter.get("/:id", (req, res) => userController.getUserById(req, res));
   userRouter.post("/", validateRequest(User),(req, res, next) => userController.createUser(req, res, next));
   userRouter.put("/:id", validateRequest(User),(req, res, next) => userController.updateUser(req, res, next));
   userRouter.delete("/:id", (req, res) => userController.deleteUser(req, res));

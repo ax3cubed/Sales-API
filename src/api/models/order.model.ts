@@ -1,14 +1,10 @@
 import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, JoinColumn, type ObjectId, ObjectIdColumn, OneToMany, OneToOne, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
 import { DecoratedEntity } from "./decorated.entity";
-import { Product } from "./product.model";
-import { User } from "./user.model";
+ 
 
 @Entity()
 export class Order extends DecoratedEntity {
-  @ObjectIdColumn()
-  
-  id?: ObjectId;
 
   
   @Column({ type: "string" })
@@ -20,11 +16,7 @@ export class Order extends DecoratedEntity {
   @IsNotEmpty({ message: "Product id is required" })
   @IsString({ message: "Product id must be a string" })
   product_id?: string;
-  // @OneToMany(
-  //   (type) => Product,
-  //   (product) => product.order,
-  // )
-  // products?: Product[];
+ 
 
 
   @Column({ type: "number" })
@@ -40,14 +32,4 @@ export class Order extends DecoratedEntity {
   @IsNotEmpty({ message: "Total price is required" })
   @IsPositive({ message: "Total price must be a positive number" })
   totalPrice?: number;
-
-  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
-   createdAt?: Date;
-  
-  @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
-   updateAt?: Date;
-
-  @Column({ default: false, type: "boolean" })
-  @IsOptional()
-  softDeleted?: boolean;
 }

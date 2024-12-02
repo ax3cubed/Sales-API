@@ -46,9 +46,9 @@ const generateProduct = (): Product => {
 const generateOrder = (user?: User, product?: Product): Order => {
     const order = new Order();
     order.orderNumber = faker.string.alphanumeric(10).toUpperCase();
-    order.product_id = product?.id?.toString() // Products are passed in
+    order.product_id = product?._id?.toString() // Products are passed in
     order.quantity =  faker.number.int({min:1, max:10});
-    order.user_id = user?.id?.toString(); // Assign the user to the order
+    order.user_id = user?._id?.toString(); // Assign the user to the order
     order.totalPrice = product?.price;
     order.createdAt = faker.date.past();
     order.updateAt = new Date(); // Current date as the latest update
@@ -62,11 +62,11 @@ const generateOrder = (user?: User, product?: Product): Order => {
     try {
       init().then((MongoDbDataSource) => {
           console.log("connection init ");
-            const userService = new UserService(MongoDbDataSource.getRepository(User));
-            const salesService = new SalesService(MongoDbDataSource.getRepository(Sales));
-            const orderService = new OrderService(MongoDbDataSource.getRepository(Order));
+            const userService = new UserService(MongoDbDataSource.getMongoRepository(User));
+            const salesService = new SalesService(MongoDbDataSource.getMongoRepository(Sales));
+            const orderService = new OrderService(MongoDbDataSource.getMongoRepository(Order));
             const productService = new ProductService(
-              MongoDbDataSource.getRepository(Product)
+              MongoDbDataSource.getMongoRepository(Product)
             );
             console.log("database init complete");
             const createUserInService = (user: User): void => {

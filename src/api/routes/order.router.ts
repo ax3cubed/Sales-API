@@ -8,6 +8,7 @@ import { z, ZodTypeAny } from "zod";
 import { createApiRequest, createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { mergeRecordObjects } from "@/common/utils/utils";
 import { StatusCodes } from "http-status-codes";
+import { Product } from "../models/product.model";
 
 extendZodWithOpenApi(z);
 
@@ -38,14 +39,14 @@ orderRouterRegistry.registerPath({
 
 orderRouterRegistry.registerPath({
   method: 'get',
-  path: '/api/orders',
+  path: '/api/orders/{id}',
   description: 'Get order data by its ID',
   summary: 'Get a single order',
   tags: ["Orders"],
   parameters: [
     {
       name: 'id',
-      in: 'query',
+      in: 'path',
       required: true,
       schema: { type: 'string', example: '60c72b2f9b1d4e4b7c8a4e4d' },
     },
@@ -61,7 +62,7 @@ orderRouterRegistry.registerPath({
   parameters: [
     {
       name: 'orderNumber',
-      in: 'query',
+      in: 'path',
       required: true,
       schema: { type: 'string', example: '60c72b2f9b1d4e4b7c8a4e4d' },
     },
@@ -131,7 +132,7 @@ const init = async () => {
 };
 
 init().then((MongoDbDataSource) => {
-  const orderService = new OrderService(MongoDbDataSource.getRepository(Order));
+  const orderService = new OrderService(MongoDbDataSource.getMongoRepository(Order), MongoDbDataSource.getMongoRepository(Product));
   const orderController = new OrderController(orderService);
   
   orderRouter.get("/", (req, res) => orderController.findAllOrders(req, res));

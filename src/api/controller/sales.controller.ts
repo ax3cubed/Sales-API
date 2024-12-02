@@ -63,7 +63,7 @@ export class SalesController {
     async updateSales(req: Request, res: Response): Promise<Response> {
         const salesData = req.body;
         try {
-            const salesId = new ObjectId(salesData.id);  
+            const salesId = new ObjectId(salesData._id);  
             const updatedSales = await this.salesService.updateSales({ ...salesData, id: salesId });  
             if (!updatedSales) {
               return this.responseHandler.handleError(res, { message:  this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });

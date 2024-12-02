@@ -26,7 +26,7 @@ export class UserController {
   }
 
   async getUserById(req: Request, res: Response): Promise<Response> {
-    const { id } = req.query;
+    const { id } = req.params;
     try {
       const userId = new ObjectId(id?.toString());
       const user = await this.userService.getUserById(userId);

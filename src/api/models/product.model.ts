@@ -1,12 +1,11 @@
-import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, ManyToOne, type ObjectId, ObjectIdColumn, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { IsInt, IsNotEmpty, IsPositive, IsString } from "class-validator";
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
 import { DecoratedEntity } from "./decorated.entity";
-import { Order } from "./order.model"; // Adjust the import path as necessary
+ 
 
 @Entity()
 export class Product extends DecoratedEntity {
-  @ObjectIdColumn()
-  id?: ObjectId;
+  
 
   @Column({ type: "string" })
   @IsNotEmpty({ message: "Product name is required" })
@@ -29,15 +28,4 @@ export class Product extends DecoratedEntity {
   @IsPositive({ message: "Stock quantity must be a positive number" })
   stockQuantity!: number;
 
-  // @ManyToOne(
-  //   () => Order,
-  //   (order) => order.products,
-  // )
-  // order?: Order;
-
-  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
-   createdAt?: Date;
-  
-  @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
-   updateAt?: Date;
 }

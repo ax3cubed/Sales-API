@@ -13,6 +13,7 @@ import { Sales } from "@/api/models/sales.model";
   useNewUrlParser: true,
   useUnifiedTopology: true,
   synchronize: true,
+  logging:["query","error"],
   entities: [User, Order, Product, Sales],
 });
 

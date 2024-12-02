@@ -1,4 +1,4 @@
-import { type ObjectId, type Repository } from "typeorm";
+import { MongoRepository, type ObjectId, type Repository } from "typeorm";
 import { Sales } from "../models/sales.model";
 import { GenericRepository } from "../repositories/GenericRepository";
 
@@ -6,7 +6,7 @@ export class SalesService extends GenericRepository<Sales> {
   /**
    *
    */
-  constructor(protected readonly salesRepository: Repository<Sales>) {
+  constructor(protected readonly salesRepository: MongoRepository<Sales>) {
     super(salesRepository);
   }
 
@@ -21,10 +21,10 @@ export class SalesService extends GenericRepository<Sales> {
   async getSalesById(id: ObjectId): Promise<Sales | null> {
     try {
       const sales = new Sales();
-      sales.id = id;
+      sales._id = id;
       return await this.salesRepository.findOne({
         where: {
-          id: id,
+          _id: id,
         },
       });
     } catch (error: any) {
@@ -40,15 +40,15 @@ export class SalesService extends GenericRepository<Sales> {
   }
 
   async updateSales(sales: Sales): Promise<Sales | null> {
-    if (!sales.id) {
+    if (!sales._id) {
       throw new Error("User ID is required to update the user.");
     }
     try {
-      await this.salesRepository.update(sales.id, sales);
+      await this.salesRepository.save(sales);
 
-      return await this.getSalesById(sales.id);
+      return await this.getSalesById(sales._id);
     } catch (error: any) {
-      throw new Error(`Unable to update sales with id ${sales.id}: ${error.message}`);
+      throw new Error(`Unable to update sales with id ${sales._id}: ${error.message}`);
     }
   }
   async deleteSales(id: number): Promise<void> {

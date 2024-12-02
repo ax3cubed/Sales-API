@@ -27,8 +27,9 @@ export class OrderController {
 
     async updateOrder(req: Request, res: Response): Promise<Response> {
         const orderData = req.body;  
+        const {id} = req.params;
         try {
-          const orderId = new ObjectId(orderData.id);  
+          const orderId = new ObjectId(orderData._id);  
           const updatedOrder = await this.orderService.updateOrder({ ...orderData, id: orderId });  
           if (!updatedOrder) {
             return this.responseHandler.handleError(res, { message:  this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
@@ -40,7 +41,8 @@ export class OrderController {
       }
 
     async softDeleteOrder(req: Request, res: Response): Promise<Response> {
-        const orderId = new ObjectId(req.params.id);
+      const {id} = req.params;
+        const orderId = new ObjectId(id);
         try {
           const deletedOrder = await this.orderService.softDeleteOrder(orderId);
           if (!deletedOrder.affected) {
@@ -52,20 +54,12 @@ export class OrderController {
         }
     }
 
-    // async softDeleteOrder(req: Request, res: Response): Promise<Response> {
-    //     const { id } = req.params;
-    //     try {
-    //       const orderId = new ObjectId(id);
-    //       await this.orderService.softDeleteOrder(orderId);
-    //       return handleSuccess(DELETE_SUCCESS(Order), null, res);
-    //     } catch (error: any) {
-    //       return handleError(res, error);
-    //     }
-    // }
+ 
 
     async findOrderById(req: Request, res: Response): Promise<Response> {
+      const {id} = req.params;
         try {
-            const orderId = new ObjectId(req.params.id);
+            const orderId = new ObjectId(id);
             const order = await this.orderService.findOrderById(orderId);
             if (!order) {
                 return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
@@ -93,7 +87,8 @@ export class OrderController {
   async findAllOrders(req: Request, res: Response): Promise<Response> {
     try {
         
-        const orders = await this.orderService.find();
+        const orders = await this.orderService.findAllOrders();
+  
         if (!orders) {
             return this.responseHandler.handleError(res, { message: this.messages.NOT_FOUND(), statusCode: StatusCodes.NOT_FOUND });
         }

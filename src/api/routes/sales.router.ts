@@ -35,14 +35,14 @@ salesRouterRegistry.registerPath({
 
 salesRouterRegistry.registerPath({
   method: 'get',
-  path: '/api/sales/',
+  path: '/api/sales/{id}',
   description: 'Get sales data by its ID',
   summary: 'Get a single Sale',
   tags: ["Sales"],
   parameters: [
     {
       name: 'id',
-      in: 'query',
+      in: 'path',
       required: true,
       schema: { type: 'string', example: '60c72b2f9b1d4e4b7c8a4e4d' },
     },
@@ -116,7 +116,7 @@ const init = async () => {
   };
 
 init().then((MongoDbDataSource) => {
-  const salesService = new SalesService(MongoDbDataSource.getRepository(Sales));
+  const salesService = new SalesService(MongoDbDataSource.getMongoRepository(Sales));
   const salesController = new SalesController(salesService);
 
   salesRouter.get("/", (req, res) => salesController.getAllSales(req, res));

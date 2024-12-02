@@ -1,15 +1,11 @@
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from "class-validator";
-import { Column, CreateDateColumn, Entity, type ObjectId, ObjectIdColumn, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { IsEmail, IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
 import { DecoratedEntity } from "./decorated.entity";
+import { ObjectId } from "mongodb";
 
 @Entity()
 export class User extends DecoratedEntity {
- 
-  @ObjectIdColumn()
-  _id?: ObjectId;
-
-  @PrimaryColumn({type:'uuid', nullable: false})
-  id?:string;
+  
 
   @Column({ type: "string" })
   @IsNotEmpty({ message: "Name is required" })
@@ -26,9 +22,5 @@ export class User extends DecoratedEntity {
   @Max(150, { message: "Age must be less than or equal to 150" })
   age?: number;
 
-  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
-   createdAt?: Date;
-  
-  @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
-   updateAt?: Date;
+ 
 }

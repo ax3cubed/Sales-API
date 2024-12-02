@@ -58,13 +58,13 @@ productRouterRegistry.registerPath({
 
 productRouterRegistry.registerPath({
   method: "get",
-  path: "/api/products/",
+  path: "/api/products/{id}",
   summary: "Get product by ID",
   description: "Fetch a single product by its unique ID",
   parameters: [
     {
       name: "id",
-      in: "query",
+      in: "path",
       required: true,
       schema: {
         type: "string",
@@ -139,7 +139,7 @@ productRouterRegistry.registerPath(
 
 init().then((MongoDbDataSource) => {
   const productService = new ProductService(
-    MongoDbDataSource.getRepository(Product)
+    MongoDbDataSource.getMongoRepository(Product)
   );
   const productController = new ProductController(productService);
   productRouter.get("/:id", (req, res) =>

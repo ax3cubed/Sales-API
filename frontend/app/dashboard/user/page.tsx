@@ -4,7 +4,7 @@ import React from 'react';
 import EmployeeListingPage from './_components/user-listing-page';
 
 type pageProps = {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 };
 
 export const metadata = {
@@ -13,7 +13,8 @@ export const metadata = {
 
 export default async function Page({ searchParams }: pageProps) {
   // Allow nested RSCs to access the search params (in a type-safe way)
-  await searchParamsCache.parse(searchParams);
+ 
+  await searchParamsCache.parse(await searchParams);
 
   return <EmployeeListingPage />;
 }

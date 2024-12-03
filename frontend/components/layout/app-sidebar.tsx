@@ -36,7 +36,8 @@ import {
   ChevronRight,
   ChevronsUpDown,
   CreditCard,
-  GalleryVerticalEnd,
+ 
+  Gem,
   LogOut
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -46,8 +47,8 @@ import * as React from 'react';
 import { Icons } from '../icons';
 
 export const company = {
-  name: 'Acme Inc',
-  logo: GalleryVerticalEnd,
+  name: 'Sales API',
+  logo: Gem,
   plan: 'Enterprise'
 };
 

@@ -1,7 +1,7 @@
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
-import { pino } from "pino";
+
 
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import { healthCheckRouter } from "@/api/routes/api-registry/health-check.router";
@@ -16,6 +16,9 @@ const app: Express = express();
 
 // Set the application to trust the reverse proxy
 app.set("trust proxy", true);
+
+// Enable CORS
+app.use(cors());
 
 // Middlewares
 app.use(express.json());

@@ -9,6 +9,7 @@ import { ApiError } from "@/common/dtos/api-error";
 import { ApiLogger } from "@/common/dtos/api-logger";
 import { IUnitOfWorkParams } from "../interfaces/IUnitOfWorkParams";
 import { Repository } from "typeorm";
+import { th } from "@faker-js/faker/.";
 
 
 export class UnitOfWork implements IUnitOfWork {
@@ -17,6 +18,10 @@ export class UnitOfWork implements IUnitOfWork {
   private productRepository: Repository<Product>;
   private orderRepository: Repository<Order>;
   private logger: ApiLogger<UnitOfWork>;
+
+  private TransactionStarted = false;
+
+  private transaction: any = null;
 
   constructor(
     params:IUnitOfWorkParams
@@ -30,16 +35,26 @@ export class UnitOfWork implements IUnitOfWork {
 
   async begin(): Promise<void> {
     this.logger.logInfo("Transaction Started")
+    this.TransactionStarted = true;
+
   }
 
   async commit(): Promise<void> {
       // In a memory implementation, commit doesn't do anything
-      this.logger.logInfo("Transaction Committed")
+      this.logger.logInfo("Transaction Committed");
+      if(this.TransactionStarted){
+        this.transaction 
+      }else{
+        this.logger.logError("Transaction not started");
+      }
+      this.transaction = null;
+
   }
 
   async rollback(): Promise<void> {
        // In a memory implementation, rollback doesn't do anything
-       this.logger.logInfo("Transaction Committed")
+       this.logger.logInfo("Transaction Committed");
+        this.transaction = null;
   }
 
   getSalesRepository(): Repository<Sales> {

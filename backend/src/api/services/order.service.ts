@@ -10,6 +10,7 @@ import { generateOrderNumber } from "@/common/utils/utils";
 import { OrderDto } from "../dto/order.dto";
 import { ProductDto } from "../dto/product.dto";
 import { UnitOfWork } from "../repositories/UnitOfWork";
+import { th } from "@faker-js/faker/.";
 
 export class OrderService {
   private messages: Messages<Order>;
@@ -17,8 +18,9 @@ export class OrderService {
 
   private _orderRepository: Repository<Order>
 
+  private _unitOfWork: UnitOfWork;
   constructor( unitOfWork: UnitOfWork) {
- 
+    this._unitOfWork = unitOfWork;
     this._productRepository = unitOfWork.getProductRepository();
     this._orderRepository = unitOfWork.getOrderRepository();
     this.messages = new Messages(new Order());
@@ -26,7 +28,7 @@ export class OrderService {
 
   async createOrder(orderDto: OrderDto): Promise<Order[]> {
     try {
-      
+      this._unitOfWork.begin();
       const orderNumber = generateOrderNumber(orderDto.user_id);
 
       const orders: Order[] = orderDto.products.map((product: ProductDto) => {
@@ -38,8 +40,11 @@ export class OrderService {
         order.user_id = orderDto.user_id;
         return order;
       });
+      this._unitOfWork.commit();
       return await this._orderRepository.save(orders);
+      
     } catch (error: any) {
+      this._unitOfWork.rollback();
       throw new ApiError<Order[]>(
         `Failed to create orders: ${error.message}`,
         [],
